@@ -1,0 +1,16 @@
+### window下配置golang
+然后是go环境变量的配置：
+
+GOARCH：386（go安装版本）
+
+GOBIN：D:\Go\bin（exe执行文件路径）
+
+GOOS：windows（go运行的系统）
+
+GOROOT：D:\Go（go的解压路径）
+
+GOPATH：E:\go\data（go的工具包路径，随意指定，后面会用到）
+
+然后在path环境变量中追加：;%GOBIN%
+
+完成之后在cmd窗口输入：go version
