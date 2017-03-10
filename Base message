@@ -1,1 +1,77 @@
 1) go 语言的变量的声明  使用var 声明的是包内的全局变量 name := 'asd' 这样声明变量的方式，只有在函数的内部 for 循环是没有（）的
+
+package main
+
+import (
+    "fmt"
+	"net/http"
+	"io"
+	"log"
+)
+
+func show(n int)(vale int)  {
+    fmt.Println("Hello this is show function ")
+    return n+2;
+}
+
+var sh int = 10
+
+func good()(st string){
+    return "this is good function!"
+}
+
+var p int  = 23
+var nm *int = &p
+
+const Pi float32 = 3.14
+
+var bol bool = true
+
+func handh (w http.ResponseWriter, r *http.Request) {
+        io.WriteString(w,"This is go hello world!")
+}
+
+func main()  {
+    println("Hello world")
+    println(sh)
+    var op = show(2)
+    println(op) 
+    println(*nm)
+    println(Pi) 
+    println(bol)  
+    str := "make world"
+    for i ,v := range str {
+        println(i,v)
+    }
+
+    //声明一个数组
+      opap := [5]int{12,33,2} 
+      var opp [10]int  = [10]int{12,3,45,6,7,785,45} 
+      println(opap[0]) //新的虚拟机的产生的过程
+      println(opp[0])
+      println(opp[:2])
+        for i, bn := range opp[:5] {
+            println(i,bn)  //便利当前的相关的元素
+        }
+
+    oop := "马克a"
+    
+    println(len(oop))
+
+    //引入并发变成的
+
+    http.HandleFunc("/Hello",handh)
+
+    err := http.ListenAndServe(":8080",nil)
+
+    if err != nil{
+        log.Fatal("ListenAndServe error",err.Error())
+    }
+
+    
+
+}
+
+
+
+
