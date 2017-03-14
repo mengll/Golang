@@ -1,0 +1,91 @@
+//当前是程序的包的名称，放在非注释的，首行否则无法解析
+package main
+
+import (
+	"fmt" //导入第三方包的实现
+)
+import (
+	"log"
+	"os"
+)
+
+const AB_PI = 3.14 //常量的定义的实现
+
+var SB_age = 18 //声明的是全局变量的实现
+
+//type names int //一般变量的声明的实现
+
+//type game struct{} //结构类型的变量的声明
+
+//type gointerface interface{} //接口的声明
+
+func init() {
+	fmt.Println("Heloe world one start") //init 的初始化的函数的执行提前与main 函数
+	log.SetOutput(os.Stdout)
+}
+
+type World struct{}
+
+func (w *World) String() string {
+	return "时间"
+}
+
+//实现golang语言的闭包的操作
+
+func bi() func(bl string) string {
+	return func(cc string) string {
+		return cc + "--闭包"
+	}
+}
+
+func test() (int, string) {
+	fmt.Println("要求是毫秒级别的操作的实现")
+	return 1, "abc" //返回当前的操作的实现
+
+}
+
+func main() {
+	fmt.Println("Heloe world 您好世界！")
+	fmt.Println(PI)
+	fmt.Println(age)
+
+	var s, n = "abc", 234
+	fmt.Println(s, n)
+
+	//data, i := 2, 100
+	//获取当前的操作的实现的方式，和相关的哦方法的管理
+	onj, sm := test() //只有在赋值操作的实现的方法
+	fmt.Println(onj)
+	fmt.Println(sm)
+	sl := "Hello " + "World"
+	fmt.Println(sl)
+
+	mll := "wendan"
+	bs := []byte(mll)
+	bs[1] = 'B'
+
+	fmt.Println(string(bs))
+	//如果有汉字的话首先首先和转换成相关的参数的设置
+	wendna := "刘文丹"
+	dandan := []rune(wendna)
+	fmt.Println(string(dandan[1]))
+
+	//创建声明的对象的操作
+	type datas struct{ a int }
+
+	var d = datas{34}
+	var p *datas
+	p = &d
+	fmt.Println(p.a)
+	fmt.Printf("Hello word %s\n", new(World))
+
+	we := bi()
+
+	fmt.Println(we("wenwendandan"))
+	//panic("ds")
+	defer func(){
+		if err := recover(); err!=nil{
+			fmt.Println("sa")
+		}
+	}
+}
