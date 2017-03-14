@@ -14,3 +14,5 @@ GOPATH：E:\go\data（go的工具包路径，随意指定，后面会用到）
 然后在path环境变量中追加：;%GOBIN%
 
 完成之后在cmd窗口输入：go version
+
+Golang 的执行的顺序不是流程试的执行的，中间可能会发生，提前执行的过程吧！
