@@ -1,0 +1,30 @@
+// interface
+package main
+
+import (
+	"fmt"
+)
+
+type USB interface {
+	Name() string
+	Connect()
+}
+
+type PhoneConnecter struct {
+	name string
+}
+
+func (pc PhoneConnecter) Name() string {
+	return pc.name
+}
+
+func (pc PhoneConnecter) Connect() {
+	fmt.Println(pc.name)
+}
+
+func main() {
+	var ain USB
+	ain = PhoneConnecter{"phone"}
+	ain.Connect()
+	fmt.Println("Hello World!")
+}
