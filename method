@@ -1,0 +1,43 @@
+// method
+package main
+
+import (
+	"fmt"
+)
+
+type Ame struct {
+	Name string
+}
+
+type Bme struct {
+	Name string
+}
+
+type TZ int
+
+func main() {
+	fmt.Println("Hello World!")
+	aso := Ame{}
+	aso.Print("wen")
+
+	buo := Bme{}
+	buo.Show("dand")
+
+	var tz TZ
+	tz.Inc(19)
+	fmt.Println(tz)
+}
+
+func (aso *Ame) Print(isj string) {
+	//方法的绑定a A对象
+	fmt.Println(isj)
+}
+
+func (bmw Bme) Show(kl string) {
+	fmt.Println(kl)
+}
+
+func (tz *TZ) Inc(num int) {
+	*tz += TZ(num)
+
+}
