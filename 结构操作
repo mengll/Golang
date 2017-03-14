@@ -1,0 +1,75 @@
+// desource
+package main
+
+import (
+	"fmt"
+)
+
+type testS struct {
+	Na int
+}
+
+//匿名结构的初始化的操作
+type person struct {
+	Name    string
+	Age     int
+	Contact struct {
+		Phone, City string
+	}
+}
+
+//嵌入结构
+type student struct {
+	testS
+	Name string
+	Age  int
+	Na   int
+}
+
+func main() {
+	var fs = [4]func(){}
+
+	for i := 0; i < 4; i++ {
+		defer fmt.Println("defer i =", i)
+		defer func() {
+			fmt.Println("defer_closure i= ", i)
+		}()
+		fs[i] = func() { fmt.Println("closure i =", i) }
+	}
+	fmt.Println("Hello World!")
+
+	for _, f := range fs {
+		f()
+	}
+
+	a := testS{Na: 43} //简便的初始化 结构也是一个值类型，
+	a.Na = 23
+	fmt.Println(a)
+	A(&a)
+	fmt.Println(a)
+
+	ass := &struct {
+		Name string //大写是公共的属性，小写是私有的属性
+		Age  int
+	}{
+		Name: "Erioc",
+		Age:  43,
+	}
+
+	fmt.Println(ass.Name)
+
+	//匿名函数初始化
+	ans := person{Name: "MLL", Age: 30}
+	ans.Contact.City = "Shandong"
+	ans.Contact.Phone = "110"
+
+	fmt.Println(ans)
+	//qianru
+	al := student{Name: "fj", Age: 28, testS: testS{Na: 34}, Na: 45}
+	fmt.Println(al.testS.Na)
+}
+
+func A(te *testS) {
+	te.Na = 99
+	fmt.Println(te)
+}
