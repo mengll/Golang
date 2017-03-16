@@ -1,0 +1,32 @@
+// struct
+package main
+
+import (
+	"fmt"
+)
+
+type ginter interface {
+	Run()
+	Connect()
+}
+
+type gamea struct {
+	fuck string
+}
+
+func (g *gamea) Run() {
+	fmt.Println("this is Game run function!")
+}
+
+func (g *gamea) Connect() {
+	fmt.Println("this is Game Connect function!")
+}
+
+func main() {
+	var gin ginter
+	gin = &gamea{fuck: "this is game"} //接口如果是指针传递的话要获取，对象地址，普通兑现的传递对象的继承的实现方式有所不同	
+  gin.Run()
+	gin.Connect()
+}
+
+//结构值存放数据结构类型的数据
