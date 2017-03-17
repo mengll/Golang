@@ -1,0 +1,72 @@
+// sdkapi project main.go
+package main
+
+import (
+	"fmt"
+	"sdkapi/tool"
+)
+
+func main() {
+	fmt.Println("Hello World!")
+	tool.Show()
+
+	//调用包内的数据格式的变化
+	user := &tool.Httpnet{Name: "BAIDU", Address: "SHANDONG"}
+
+	op := user.GetUrl("www.baidu.com")
+	fmt.Println(op) //调用当前的操作的
+
+	//fmt.Println(user.Geturl("www.baidu.com"))
+
+	//创建sdkapi的案例的实现的方式和方法
+
+	sdkapi := &tool.Sdkapi{Net: tool.Httpnet{Name: "阿里巴巴", Address: "山东"}, BaseUrl: "1987ba.com"}
+	fmt.Println(sdkapi.BaseUrl)
+
+	os := sdkapi.Net.GetUrl("清风战队")
+	fmt.Println(os)
+}
+
+
+-----------------------------------------华丽的分割线---------------------------------------------------------------------
+package tool
+
+type Httpnet struct {
+	Name    string
+	Address string
+}
+
+//创建传递的，数据的格式的变化
+type Pos struct {
+	Name string
+	Uid  int
+	pid  int
+}
+
+//实现一个嵌入的操作
+type Sdkapi struct {
+	Net     Httpnet
+	BaseUrl string
+}
+
+//创建新的请求发送，传递的参数
+func (httpnet *Httpnet) GetUrl(url string) string {
+	return "this is nei " + url
+}
+
+//使用新的传递的规则的实现
+func (httpnet *Httpnet) PostUrl(url string, data Pos) {
+	println("This is your can!")
+}
+
+//创建一个新的
+
+func (apisdk *Sdkapi) GetUserInfo(username string, pid int) (string, int) {
+	return username, pid
+}
+
+// 创建用户绑定的手机的相关的信息的操作
+
+func (apisdk *Sdkapi) UserBindMobile(mobile string) {
+	println(mobile)
+}
