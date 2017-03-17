@@ -1,0 +1,30 @@
+// bingfa
+package main
+
+import (
+	"fmt"
+)
+
+var lk chan int
+
+func Add(x, y int, ch chan int) {
+	z := x + y
+	ch <- z
+	fmt.Println(z)
+}
+
+func main() {
+	chs := make([]chan int, 10)
+	fmt.Println("Hello World!")
+	for i := 0; i < 10; i++ {
+		chs[i] = make(chan int)
+		go Add(i, i, chs[i])
+	}
+
+	for _, ch := range chs {
+		<-ch
+	}
+
+}
+
+//没有单纯的构造函数，只有在创建 New对项目
