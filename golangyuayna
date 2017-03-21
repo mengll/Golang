@@ -1,1 +1,7 @@
-1)jichufuqu
+1)go语言提供了，自动垃圾回收机制！Go语言编程的API 是基于CSP 模型的(Communicating Sequential Processes) 这就意味着，着使用了现实编程的方案！～
+使用了goruntine 进行资源的管理和分配！ 使用了标准 的库函数 sync /atomic 的方式编程 
+sync.Once 类型可以执行一次函数调用的方！在主的goroiutine 上等待
+2）使用通道还是能死锁 操作若干个 goroutine 互相通知对方去执行某个函数如果被请求执行的函数，中向执行它的goroutine 发送一个请求  数据的死锁就发生了
+通道是双向的 可以往里面发送数据 也可以从里面接受数据
+
+阿斯顿
