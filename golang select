@@ -1,0 +1,61 @@
+1)在没有阻塞的情况下，select 会任选一个去去执行相关的操作。如果有阻塞的相关的操作,执行defalut的操作！
+// fuxi
+package main
+
+import (
+	"fmt"
+)
+
+func Adds(x, y int, ch chan int) {
+	z := x + y
+	ch <- z
+	fmt.Println(z)
+}
+func main() {
+
+	chs := make([]chan int, 10)
+	fmt.Println("This isbingfa ")
+	for i := 0; i < 10; i++ {
+		chs[i] = make(chan int)
+		go Adds(i, i, chs[i])
+	}
+
+	//遍历的等待，执行完成后的操作的控制的限制
+	for _, ch := range chs {
+		<-ch
+	}
+
+	//执行
+
+	chanels := make([]chan bool, 4)
+	for k := range chanels {
+		chanels[k] = make(chan bool)
+	}
+
+	go func() {
+		for kl := 0; kl < 5; kl++ {
+			chanels[kl] <- true
+		}
+	}()
+
+	for l := 0; l < 5; l++ {
+		var x int
+		select {
+		case <-chanels[0]:
+			x = 1
+		case <-chanels[1]:
+			x = 2
+		case <-chanels[2]:
+			x = 3
+		case <-chanels[3]:
+			x = 4
+		default:
+			x = 6
+		}
+
+		fmt.Printf("%d", x)
+	}
+
+	fmt.Println()
+
+}
