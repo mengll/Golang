@@ -28,3 +28,44 @@ func main() {
 }
 
 //没有单纯的构造函数，只有在创建 New对项目
+
+
+package main
+
+import (
+	"fmt"
+)
+
+var kls [10]chan int //设定当前的通道的长度
+
+func pgo(x, y int, ch chan int) {
+	z := x + y
+	ch <- z
+}
+
+func main() {
+
+	for i := 0; i < 10; i++ {
+		kls[i] = make(chan int)
+		go pgo(i, i, kls[i])
+
+		op := <-kls[i]
+
+		fmt.Println(op)
+	}
+
+	//实现select 方法的创建
+	kl := make(chan int)
+	go func() {
+		kl <- 12
+	}() //管道的使用必须是在 gorutine 中使用
+	select {
+	case <-kl:
+		fmt.Println("This is select Go func")
+	default:
+		fmt.Println("Thisis parent is good!")
+	}
+
+	//创建一个循环调用的数组的控制的房
+	fmt.Println("This is gO function !")
+}
