@@ -1,0 +1,39 @@
+package main
+
+import (
+	"fmt"
+)
+
+type mx struct {
+	Name string
+}
+
+type gg interface {
+	Ngame()
+	Content()
+}
+
+func main() {
+	kl := mx{Name: "ujing"}
+	kl.sk()
+
+	var minter gg
+	minter = &kl //传递的 参数的变化
+	minter.Content()
+
+	fmt.Println("文件管理")
+}
+
+func (c *mx) sk() {
+	println("This is sk func " + c.Name)
+}
+
+func (c *mx) Ngame() {
+	fmt.Println("This is Game show " + c.Name)
+}
+
+func (c *mx) Content() {
+	fmt.Println("TContent is MAX " + c.Name)
+}
+
+// 声明的接口的变量 会根据方法接受参数的形式，来决定传递的是引用，还是传递指针 接口 = 结构对象 相当于当前的结构对象 implements 的方式传递参数
