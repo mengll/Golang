@@ -1,0 +1,15 @@
+package main
+
+import (
+	"fmt"
+)
+
+var mp map[int]string
+
+func main() {
+	//mp[1] = "today" 错误的书写，没有申明空间
+	mp = make(map[int]string) //创建内存，是创建整个map的内存空间 不是单个对象的，内存空间！
+	mp[0] = "asdsdasda"
+
+	fmt.Println(mp)
+}
