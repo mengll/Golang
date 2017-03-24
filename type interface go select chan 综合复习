@@ -1,0 +1,63 @@
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+//
+type Grole struct {
+	RoleName string
+	Leavel   int
+	Comex    string
+}
+
+type Gcontroller interface {
+	Run()
+	Fuck()
+}
+
+var gface Gcontroller
+
+//创建并发GO func
+
+func bingfa(sd string) {
+	fmt.Println(sd) //创建可编程的操作的方法
+}
+
+type gamerole chan *Grole //传递一个复杂的对象类型
+
+func main() {
+	grolr := Grole{RoleName: "常山赵子龙", Leavel: 100, Comex: "十拳剑"} //数据结构赋值操作，到接口
+	gface = &grolr
+	gface.Fuck()
+	fmt.Println("asd")
+	//创建并发操作的函数控制
+	gk := make(gamerole)
+	timeout := make(chan bool)
+	go func() {
+		gk <- &grolr //管道的所有操作，必须是在并发的函数中，执行
+		time.Sleep(3 * time.Second)
+		timeout <- true // 通过管道，传递正确的参数到，控制中心
+	}()
+
+	//go func() {
+	select {
+	case <-timeout:
+	case po := <-gk:
+		fmt.Println(po.Leavel)
+		po.Run()
+	} //select 阻塞等待，执行相关的方法
+	//}()
+}
+
+//创建相关的方法，执行
+func (role *Grole) Run() {
+	fmt.Println(role.RoleName + "run run run come on baby!") //实现go FUNC
+}
+
+//创建攻击的操作的实现
+
+func (role *Grole) Fuck() {
+	fmt.Println(role.RoleName)
+}
