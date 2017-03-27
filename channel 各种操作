@@ -1,0 +1,73 @@
+package main
+
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
+var timeout = make(chan bool, 1)
+
+func gg() {
+	time.Sleep(3 * time.Second)
+	timeout <- true
+}
+
+var ch = make(chan int, 10)
+
+//多核操作
+func godo(isa int, chs chan int) {
+	chs <- isa
+}
+
+const NUMS = 4
+
+var lucj int = 8
+var l sync.Mutex
+
+func lock(num int) {
+	l.Lock()
+	lucj = num
+	defer l.Unlock()
+}
+
+//创建结构化的数据类型
+
+func main() {
+	go func() {
+		ch <- 2
+	}()
+	go gg()
+	//阻塞等待，执行结果
+	select {
+	case <-ch:
+		fmt.Println("This is run here! you can do that!")
+		close(ch)
+	case <-timeout:
+		fmt.Println("Now this is run time out")
+		close(timeout)
+	}
+	lk := make(chan int, 10)
+	go func() {
+		//实现4cpu
+		fmt.Println("sdadas")
+		for i := 0; i < NUMS; i++ {
+			go godo(i, lk)
+			go lock(i)
+		}
+
+	}()
+
+	for i := 0; i < NUMS; i++ {
+		go func() { fmt.Println(<-lk) }()
+	}
+
+	time.Sleep(3 * time.Second)
+
+	// 使用数据同步锁的控制
+
+}
+
+//在使用管道的时候，最好设置相关的超时时间，不然会出现，阻塞的现象！导致程序，崩溃
+
+//关闭管道使用的是close 关闭当前的通道
