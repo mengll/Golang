@@ -1,0 +1,16 @@
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	a := func() func(pl string) string { //匿名函数控制返回匿名函数对象，返回的函数，返回的函数类型是 字符串的类型
+		return func(pl string) string {
+			return pl + "This is Bibao"
+		}
+	}()
+	K := a("fsa")
+	fmt.Println(K) //闭包的处理
+	fmt.Println("This is Package!")
+}
