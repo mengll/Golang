@@ -1,0 +1,50 @@
+package main
+
+import (
+	"fmt"
+	"sort"
+)
+
+type beego struct {
+	Bname string
+	Bage  int
+	Bdo   chan func()
+}
+
+func main() {
+	kl := &beego{Bname: "dandan", Bage: 26, Bdo: make(chan func())}
+	go func() {
+		for {
+			(<-kl.Bdo)()
+		}
+	}()
+
+	//发动当前的方法的操作
+	kl.Bdo <- func() {
+		fmt.Println("This is Bdo func") //创建相关的方法的实现的原理！，使用管道的方式传递当前的方法到，执行的位置
+	}
+
+	//使用select的方式更改当前的操作的数据的相关的属性 select的方式，如果处理不好，会产生。阻塞的现象
+
+	//go语言签名认证的方法 排序的放肆
+
+	m := make(map[string]string)
+	m["hello"] = "echo hello"
+	m["world"] = "echo world"
+	m["go"] = "echo go"
+	m["is"] = "echo is"
+	m["cool"] = "echo cool"
+
+	sorted_keys := make([]string, 0)
+	for k, _ := range m {
+		sorted_keys = append(sorted_keys, k)
+	}
+
+	// sort 'string' key in increasing order
+	sort.Strings(sorted_keys)
+
+	for _, k := range sorted_keys {
+		fmt.Printf("k=%v, v=%v\n", k, m[k])
+	}
+
+}
