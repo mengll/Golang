@@ -25,7 +25,64 @@ args := []reflect.Value{reflect.ValueOf("joe")}
 
 mv.Call(args)
 
+}
 
+//带有参数的函数反射
+package main
 
+import (
+	"fmt"
+	"reflect"
+)
 
+var x float64 = 3.4
+
+type Show struct {
+	Name string
+	Age  int
+}
+
+func main() {
+	v := reflect.ValueOf(&x) //复制的时候，会创建一个副本，以后你操作的数据，都是操作副本
+	fmt.Println(v.Type())
+	fmt.Println(v.CanSet())
+	fmt.Println(v.Kind())
+
+	//创建当前的对象
+	jk := Show{Name: "wenwen", Age: 28}
+	//输出当前反射的元素数
+	fnum := reflect.ValueOf(&jk).Elem()
+	fmt.Println(fnum)
+	typeT := fnum.Type()
+
+	//便利输出当前的键值对的关联关系
+	for i := 0; i < fnum.NumField(); i++ {
+		f := fnum.Field(i)
+		fmt.Println(typeT.Field(i).Name)
+		fmt.Printf("dh %d", f.Interface()) //输出当前的内容的操作！
+		fmt.Println(fnum.FieldByName("Age"))
+
+	}
+
+	//反射的方式电泳当前的函数
+	reflect.ValueOf(&jk).MethodByName("S").Call([]reflect.Value{}) // 创建了没有参数的，反射函数的调用
+	//fmt.Println(pp)
+	//有参数的反射调用
+	fmt.Println(reflect.Value{})
+	//有参数的传递
+	d := reflect.ValueOf(1)
+	reflect.ValueOf(&jk).MethodByName("Bq").Call([]reflect.Value{d})
+
+}
+
+//反射函数的调用
+
+func (a *Show) S() {
+	fmt.Printf("This is Show struct of S func %s \n", a.Name)
+}
+
+//创建有参数的，函数调用的形式，返回参数的
+
+func (b *Show) Bq(o int) {
+	fmt.Printf("is this your umbrella! %s and the of it is %d", b.Name, o)
 }
