@@ -1,0 +1,359 @@
+　下面一段代码，实现了最简单的 Web 服务器：
+
+编译环境：
+　　Linux Mint 18 Cinnamon 64-bit
+　　Golang 1.7
+
+------------------------------
+
+// main.go
+package main
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+)
+
+// 处理主页请求
+func index(w http.ResponseWriter, r *http.Request) {
+	// 向客户端写入内容
+	fmt.Fprintf(w, "Hello World!")
+}
+
+func main() {
+	http.HandleFunc("/", index)              //设置访问的路由
+	err := http.ListenAndServe(":9090", nil) //设置监听的端口
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
+}
+
+------------------------------
+
+　　执行上面的程序之后，打开 Web 浏览器，在地址栏输入：127.0.0.1:9090 就可以访问这个服务器了。它只实现了最简单的单一页面的输出。
+
+　　接下来我们让服务器接受客户端输入的数据，然后将其反馈给客户端。
+
+　　首先，我们要向客户端写入一个表单页面，以便客户端有地方可以填写数据和提交数据。然后还需要在服务端添加一个页面处理函数，用来处理用户提交的数据。下面就开始实现这个功能。
+
+------------------------------
+
+// main.go
+package main
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+)
+
+// 向客户端写入这些数据，以便客户端可以填写文本并提交
+var indexHTML = `<html>
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<title>测试</title>
+</head>
+<body>
+	<form action="/page" method="post">
+		用户名：<br>
+		<input name="username" type="text"><br>
+		请输入文本：<br>
+		<textarea name="usertext"></textarea><br>
+		<input type="submit" value="提交">
+	</form>
+</body>
+</html>`
+
+// 用于将页面重定向到主页
+var redirectHTML = `<html>
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="Refresh" content="0; url={{.}}">
+</head>
+<body></body>
+</html>`
+
+// 处理主页请求
+func index(w http.ResponseWriter, r *http.Request) {
+	// 向客户端写入我们准备好的页面
+	fmt.Fprintf(w, indexHTML)
+}
+
+// 处理客户端提交的数据
+func page(w http.ResponseWriter, r *http.Request) {
+	// 我们规定必须通过 POST 提交数据
+	if r.Method == "POST" {
+		// 解析客户端请求的信息
+		if err := r.ParseForm(); err != nil {
+			log.Println(err)
+		}
+		// 获取客户端输入的内容
+		userName := r.Form.Get("username")
+		userText := r.Form.Get("usertext")
+		// 将内容反馈给客户端
+		fmt.Fprintf(w, "你好 %s，你输入的内容是：%s", userName, userText)
+	} else {
+		// 如果不是通过 POST 提交的数据，则将页面重定向到主页
+		fmt.Fprintf(w, redirectHTML)
+	}
+}
+
+func main() {
+	http.HandleFunc("/", index)              // 设置访问的路由
+	http.HandleFunc("/page", page)           // 设置访问的路由
+	err := http.ListenAndServe(":9090", nil) // 设置监听的端口
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
+}
+
+------------------------------
+
+　　到此，我们已经实现了客户端和服务端的自由交互，但是将“页面内容”和“逻辑代码”混在一起总是不好的，下我们把“页面内容”和“逻辑代码”分开存放。
+
+　　在 views 目录中创建 3 个 html 文件用于存放主页、反馈页面、重定向页面，内容如下：
+
+------------------------------
+
+<!-- views/index.html -->
+<html>
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<title>测试</title>
+</head>
+<body>
+	<form action="/page" method="post">
+		用户名：<br>
+		<input name="username" type="text"><br>
+		请输入文本：<br>
+		<textarea name="usertext"></textarea><br>
+		<input type="submit" value="提交">
+	</form>
+</body>
+</html>
+
+------------------------------
+
+<!-- views/page.html -->
+<html>
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+</head>
+<body>
+	<h3>你好 {{.Name}}，你输入的内容是：</h3>
+	<pre>{{.Text}}</pre>
+	<p><a href="/">返回</a></p>
+</body>
+</html>
+
+------------------------------
+
+<!-- views/redirect.html -->
+<html>
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="Refresh" content="0; url={{.}}">
+</head>
+<body></body>
+</html>
+
+------------------------------
+
+main.go 的内容如下：
+
+------------------------------
+
+// main.go
+package main
+
+import (
+	"html/template"
+	"log"
+	"net/http"
+)
+
+func checkErr(err error) {
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+// 存放用户数据
+type UserData struct {
+	Name string
+	Text string
+}
+
+// 渲染页面并输出
+func renderHTML(w http.ResponseWriter, file string, data interface{}) {
+	// 获取页面内容
+	t, err := template.New(file).ParseFiles("views/" + file)
+	checkErr(err)
+	// 将页面渲染后反馈给客户端
+	t.Execute(w, data)
+}
+
+// 处理主页请求
+func index(w http.ResponseWriter, r *http.Request) {
+	// 渲染页面并输出
+	renderHTML(w, "index.html", "no data")
+}
+
+// 处理用户提交的数据
+func page(w http.ResponseWriter, r *http.Request) {
+	// 我们规定必须通过 POST 提交数据
+	if r.Method == "POST" {
+		// 解析客户端请求的信息
+		if err := r.ParseForm(); err != nil {
+			log.Println("Handler:page:ParseForm: ", err)
+		}
+
+		// 获取客户端输入的内容
+		u := UserData{}
+		u.Name = r.Form.Get("username")
+		u.Text = r.Form.Get("usertext")
+
+		// 渲染页面并输出
+		renderHTML(w, "page.html", u)
+	} else {
+		// 如果不是通过 POST 提交的数据，则将页面重定向到主页
+		renderHTML(w, "redirect.html", "/")
+	}
+}
+
+func main() {
+	http.HandleFunc("/", index)              // 设置访问的路由
+	http.HandleFunc("/page", page)           // 设置访问的路由
+	err := http.ListenAndServe(":9090", nil) // 设置监听的端口
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
+}
+
+------------------------------
+
+　　一般在收到客户端数据后，我们都希望把它存储在服务器中，以便客户端随时可以读取，下面我们就来实现这个功能，将用户提交的数据存储到服务器的 SQLite 数据库中（SQLite 仅用于测试，实际站点推荐使用 MongoDb）。
+
+　　当然需要 "github.com/mattn/go-sqlite3" 这个包和 SQLite 开发环境：
+
+1、在 Linux Mint 的终端输入“go get github.com/mattn/go-sqlite3”获取包文件。
+
+2、在 Linux Mint 的软件管理器中搜索“Golang-github-mattn-go-sqlite3-dev”并安装。
+
+3、在 Linux Mint 的软件管理器中搜索“SQLiteman”并安装（可选），用于查看 SQLite 数据库。
+
+　　开发环境搭建好后，下面就是数据库操作代码：
+
+------------------------------
+// main.go
+package main
+
+import (
+	"database/sql"
+	"html/template"
+	"log"
+	"net/http"
+
+	_ "github.com/mattn/go-sqlite3"
+)
+
+func checkErr(err error) {
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+// 存放用户数据
+type UserData struct {
+	Name string
+	Text string
+}
+
+// 渲染页面并输出
+func renderHTML(w http.ResponseWriter, file string, data interface{}) {
+	// 获取页面内容
+	t, err := template.New(file).ParseFiles("views/" + file)
+	checkErr(err)
+	// 将页面渲染后反馈给客户端
+	t.Execute(w, data)
+}
+
+// 写入数据库（返回写入后的数据）
+func writeData(userData *UserData) string {
+	// 打开数据库
+	db, err := sql.Open("sqlite3", "./data.db")
+	checkErr(err)
+	defer db.Close()
+
+	// 如果数据表不存在则创建（如果存在则跳过）
+	db.Exec(`create table data (id integer not null primary key, name text, data string);`)
+
+	var olddata string // 数据库中已存在的数据
+	var sqlStmt string // sql 内容
+
+	// 查询用户是否存在，同时读取用户数据
+	err = db.QueryRow("select data from data where name = ?", userData.Name).Scan(&olddata)
+	if err != nil { // 用户不存在
+		sqlStmt = "insert into data(data, name) values(?,?)" // 添加数据
+	} else { // 用户存在
+		sqlStmt = "update data set data = ? where name == ?" // 更新数据
+		// 如果 data 为空，则删除用户
+		if len(userData.Text) == 0 {
+			sqlStmt = "delete from data where data >= ? and name == ?" // 删除字段
+		} else {
+			// 否则将 data 追加到数据库
+			userData.Text = olddata + "\n" + userData.Text
+		}
+	}
+
+	// 准备 SQL
+	stmt, err := db.Prepare(sqlStmt)
+	checkErr(err)
+	defer stmt.Close()
+
+	// 执行 SQL
+	_, err = stmt.Exec(userData.Text, userData.Name)
+	checkErr(err)
+	return userData.Text
+}
+
+// 处理主页请求
+func index(w http.ResponseWriter, r *http.Request) {
+	// 渲染页面并输出
+	renderHTML(w, "index.html", "no data")
+}
+
+// 处理用户提交的数据
+func page(w http.ResponseWriter, r *http.Request) {
+	// 我们规定必须通过 POST 提交数据
+	if r.Method == "POST" {
+		// 解析客户端请求的信息
+		if err := r.ParseForm(); err != nil {
+			log.Println("Handler:page:ParseForm: ", err)
+		}
+
+		// 获取客户端输入的内容
+		u := UserData{}
+		u.Name = r.Form.Get("username")
+		u.Text = r.Form.Get("usertext")
+
+		// 写入数据库，同时获取处理后的数据
+		u.Text = writeData(&u)
+
+		// 渲染页面并输出
+		renderHTML(w, "page.html", u)
+	} else {
+		// 如果不是通过 POST 提交的数据，则将页面重定向到主页
+		renderHTML(w, "redirect.html", "/")
+	}
+}
+
+func main() {
+	http.HandleFunc("/", index)              // 设置访问的路由
+	http.HandleFunc("/page", page)           // 设置访问的路由
+	err := http.ListenAndServe(":9090", nil) // 设置监听的端口
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
+}
