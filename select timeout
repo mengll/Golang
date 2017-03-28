@@ -18,3 +18,47 @@ func main() {
 		fmt.Println("Time out")
 	}
 }
+
+//使用令牌方式，循环执行
+package main
+
+import (
+	"fmt"
+	"runtime"
+	"sync"
+	"time"
+)
+
+var timeout chan bool
+
+func ga() {
+	fmt.Println("This is select func")
+	time.Sleep(time.Second)
+	timeout <- true
+}
+
+func main() {
+
+	//便利当前的操作的管理的实现的放肆
+	var wg sync.WaitGroup
+	tokens := make(chan int, runtime.NumCPU())
+
+	timeout = make(chan bool, 1)
+	//常见缓冲区的实现
+	go ga()
+	for {
+		select {
+		case <-timeout:
+			fmt.Println("Now this is run here!")
+			//处理相关的操作完成后继续进行的操作
+			tokens <- 1
+		case <-tokens:
+			time.Sleep(time.Second) //实现了间隔时间的控制
+			//处理完成后跳转继续执行相关的操作
+			timeout <- true
+		default:
+		}
+	}
+
+	wg.Wait() //等待用户信息全部完成
+}
