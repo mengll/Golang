@@ -1,0 +1,96 @@
+package controllers
+
+import (
+	"crypto/md5"
+	"encoding/hex"
+	"fmt"
+	"sort"
+
+	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/orm"
+)
+
+var MysqlDb orm.Ormer
+
+type InitController struct {
+	//Username string
+	//Ucid     int
+	//Appid    int
+	//_Token   string
+	beego.Controller
+}
+
+func init() {
+	MysqlDb = orm.NewOrm()
+}
+
+type mymd5 struct {
+	Md string
+}
+
+//创建测试数据的接口
+
+func (this *InitController) Gamegift() {
+
+}
+
+func (this *InitController) Info() {
+	//使用Input 方式获取当前的说用对象的数据
+	//url.Values // map[string][]string
+
+	dat := this.Input()
+	var keys []string = make([]string, len(dat))
+	i := 0
+	for k, _ := range dat {
+		if k != "_sign" {
+			keys[i] = k
+			i++
+		}
+	}
+	//传递的参数的组合拼接
+	var strd string
+	sort.Strings(keys)
+
+	for _, vv := range keys {
+		strd += vv + "=" + dat[vv][0] + "&"
+	}
+
+	//查询获取到当前游戏的aprikey
+	o := orm.NewOrm()
+
+	type Prikeys struct {
+		Mkey string
+	}
+
+	//获取当前的用户的信息
+	pid := this.GetString("pid")
+	vid := this.GetString("vid")
+
+	var Priks []Prikeys //创建用户信息的列表的实现
+	_, err := o.Raw("SELECT priKey as mkey FROM procedures where pid = " + pid + " and vid = " + vid).QueryRows(&Priks)
+
+	if err == nil {
+		//key md5 start
+		m5 := &mymd5{Md: Priks[0].Mkey}
+		kls := []byte(m5.Mk())
+		ka := string(kls[0:16]) + "" + string(kls[0:8])
+		strd = strd + "key=" + ka
+		//md5 加密处理
+		sgin := &mymd5{Md: strd}
+		fmt.Println(sgin.Mk())
+		//生成签名密码
+	} else {
+		fmt.Println(err)
+	}
+}
+
+//生成签名的方法
+func (this *InitController) CreatSign(pid, vid int) string {
+	return ""
+}
+
+func (m5 *mymd5) Mk() string {
+	h := md5.New()
+	h.Write([]byte(m5.Md))                // 转化成字符串的形式 并给出了初始化的数据!
+	return hex.EncodeToString(h.Sum(nil)) // 输出加密结果
+}
