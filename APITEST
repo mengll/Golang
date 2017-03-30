@@ -1,0 +1,48 @@
+// utest project utest.go
+package utest
+
+//创建Http的Get的请求的方式，创建请求
+import (
+	"io/ioutil"
+	"net/http"
+	"strings"
+)
+
+//创建接口
+
+func HttpDO(ptype, url, data string) string {
+	//http.Post()
+	client := http.Client{}
+	req, err := http.NewRequest(ptype, url, strings.NewReader(data))
+	if err != nil {
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	//req.Header.Set("Cookie", "name=anny")
+	resp, err := client.Do(req)
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		// handle error
+	}
+
+	return string(body)
+}
+
+//创建get的请求的参数
+func HttpGet(url string) string {
+	resp, err := http.Get(url)
+	if err != nil {
+		// handle error
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		// handle error
+	}
+	return string(body)
+}
+
+// 创建生成签名的方法的过程
