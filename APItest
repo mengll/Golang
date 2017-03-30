@@ -1,0 +1,322 @@
+package controllers
+
+import (
+	"TestTool/utest"
+	"crypto/md5"
+	"database/sql"
+	"encoding/hex"
+	"fmt"
+	"html/template"
+	"log"
+	"net/http"
+	"sort"
+	"strings"
+	"sync"
+	"time"
+
+	_ "github.com/go-sql-driver/mysql"
+)
+
+//生成数据库
+var Mysqldb *sql.DB
+
+type mymd5 struct {
+	Md string
+}
+
+// 渲染页面并输出
+func renderHTML(w http.ResponseWriter, file string, data interface{}) {
+	// 获取页面内容
+	t, err := template.New(file).ParseFiles("views/" + file)
+	checkErr(err)
+	// 将页面渲染后反馈给客户端
+	t.Execute(w, data)
+}
+func checkErr(err error) {
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func Login(w http.ResponseWriter, r *http.Request) {
+
+	Mysqldb, err := sql.Open("mysql", "root:123456@tcp(192.168.1.248:3306)/anfanapi?charset=utf8") //创建数据库的连接的实现
+	if err != nil {
+		panic(err.Error()) //
+	}
+	defer Mysqldb.Close()
+
+	// 测试当前的数据库连接情况
+	err = Mysqldb.Ping()
+	if err != nil {
+		panic(err.Error()) // 爆出当前的错误
+	}
+
+	if err := r.ParseForm(); err != nil {
+		log.Println("Handler:page:ParseForm: ", err)
+	}
+	param := r.Form
+	var keys []string = make([]string, len(param))
+	i := 0
+	for k, v := range param {
+		if k != "_sign" {
+			keys[i] = k
+			i++
+		}
+		fmt.Println(k)
+		fmt.Println(v)
+	}
+	fmt.Println(keys)
+
+	//传递的参数的组合拼接
+	var strd string
+	sort.Strings(keys)
+
+	for _, vv := range keys {
+		strd += vv + "=" + param[vv][0] + "&"
+	}
+
+	//获取当前的用户的信息
+	pid := param.Get("pid")
+	vid := param.Get("vid")
+
+	//查询当前的操作预处理
+	rows, err := Mysqldb.Query("SELECT priKey as mkey FROM procedures where pid = " + pid + " and vid = " + vid)
+	if err != nil {
+		panic(err.Error()) //显示当前操作的实现的方式
+	}
+
+	columns, err := rows.Columns()
+	if err != nil {
+		panic(err.Error()) // proper error handling instead of panic in your app
+	}
+
+	//返回的结果集
+	values := make([]sql.RawBytes, len(columns))
+
+	scanArgs := make([]interface{}, len(values))
+	for i := range values {
+		scanArgs[i] = &values[i]
+	}
+
+	var Keysu string
+	//遍历每行的数据
+	for rows.Next() {
+		// get RawBytes from data
+		err = rows.Scan(scanArgs...)
+		if err != nil {
+			panic(err.Error()) // proper error handling instead of panic in your app
+		}
+
+		var value string
+		for _, col := range values {
+			if col == nil {
+				value = "NULL"
+			} else {
+				value = string(col)
+			}
+			Keysu = value
+			//fmt.Println(columns[i], ": ", value)
+		}
+	}
+	if err = rows.Err(); err != nil {
+		panic(err.Error()) // proper error handling instead of panic in your app
+	}
+
+	//获取当前的查询的信息
+	if err == nil {
+		//key md5 start
+		m5 := &mymd5{Md: Keysu}
+		kls := []byte(m5.Mk())
+		ka := string(kls[0:16]) + "" + string(kls[0:8])
+		strd = strd + "key=" + ka
+		//md5 加密处理
+		sgin := &mymd5{Md: strd}
+		fmt.Println(sgin.Mk())
+		//生成签名密码
+	} else {
+		fmt.Println(err)
+	}
+}
+
+func (m5 *mymd5) Mk() string {
+	h := md5.New()
+	h.Write([]byte(m5.Md))                // 转化成字符串的形式 并给出了初始化的数据!
+	return hex.EncodeToString(h.Sum(nil)) // 输出加密结果
+}
+
+//传递的参数使用的是字符串的形式，传递然后解析使用
+
+func StrData(w http.ResponseWriter, r *http.Request) {
+	//允许跨域访问
+	w.Header().Set("Access-Control-Allow-Origin", "*")             //允许访问所有域
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type") //header的类型
+	w.Header().Set("content-type", "application/json")
+
+	if err := r.ParseForm(); err != nil {
+		log.Println("Handler:page:ParseForm: ", err)
+	}
+	param := r.Form
+
+	baseData := param.Get("baseData") //name=fj&age=23
+
+	k := strings.Split(baseData, "&") //name=fj
+
+	dt := make([]string, len(k))           //分配响应长度的对象
+	mps := make(map[string]string, len(k)) //创建数组的类型
+	for k, v := range k {
+		role := strings.Split(v, "=")
+		dt[k] = role[0]
+		mps[role[0]] = role[1]
+	}
+
+	//打印当前解析完成的
+	sort.Strings(dt)
+
+	backurl := ""
+	for _, v := range dt {
+		backurl += v + "=" + mps[v] + "&"
+	}
+
+	//--------------------------------------------------------------------------------------排序当前的url----------------------------
+
+	Mysqldb, err := sql.Open("mysql", "root:123456@tcp(192.168.1.248:3306)/anfanapi?charset=utf8") //创建数据库的连接的实现
+	if err != nil {
+		fmt.Println("There have some error ")
+		panic(err.Error()) //
+	}
+	defer Mysqldb.Close()
+
+	// 测试当前的数据库连接情况
+	err = Mysqldb.Ping()
+	if err != nil {
+		fmt.Println("mysql error!")
+		//panic(err.Error()) // 爆出当前的错误
+	}
+
+	//调用获取key的方法
+	//获取当前的用户的信息
+	pid := param.Get("pid")
+	vid := param.Get("vid")
+
+	if len(pid) == 0 || len(vid) == 0 {
+		return
+	}
+	//查询当前的操作预处理
+	rows, err := Mysqldb.Query("SELECT priKey as mkey FROM procedures where pid = " + pid + " and vid = " + vid)
+	if err != nil {
+		panic(err.Error()) //显示当前操作的实现的方式
+	}
+
+	columns, err := rows.Columns()
+	if err != nil {
+		panic(err.Error()) // proper error handling instead of panic in your app
+	}
+
+	//返回的结果集
+	values := make([]sql.RawBytes, len(columns))
+
+	scanArgs := make([]interface{}, len(values))
+	for i := range values {
+		scanArgs[i] = &values[i]
+	}
+
+	var Keysu string
+	//遍历每行的数据
+	for rows.Next() {
+		// get RawBytes from data
+		err = rows.Scan(scanArgs...)
+		if err != nil {
+			panic(err.Error()) // proper error handling instead of panic in your app
+		}
+
+		var value string
+		for _, col := range values {
+			if col == nil {
+				value = "NULL"
+			} else {
+				value = string(col)
+			}
+			Keysu = value
+			//fmt.Println(columns[i], ": ", value)
+		}
+	}
+	if err = rows.Err(); err != nil {
+		panic(err.Error()) // proper error handling instead of panic in your app
+	}
+	_sign := ""
+	//获取当前的查询的信息
+	if err == nil {
+		//key md5 start
+		m5 := &mymd5{Md: Keysu}
+		kls := []byte(m5.Mk())
+		ka := string(kls[0:16]) + "" + string(kls[0:8])
+		strd := backurl
+		strd = strd + "key=" + ka
+		//md5 加密处理
+		sgin := &mymd5{Md: strd}
+		_sign = sgin.Mk()
+
+		//生成签名密码
+	} else {
+		fmt.Println(err)
+	}
+	//请求数据拼接
+	backurl += "_sign=" + _sign
+	type UserData struct {
+		Text string
+	}
+	u := UserData{}
+	u.Text = string(backurl)
+	fmt.Println(u)
+	//renderHTML(w, "pdata.html", u)
+
+}
+
+//创建并发测试数据部分
+
+func Bigrun(w http.ResponseWriter, r *http.Request) {
+	//请求的连接地址
+	pd := "_appid=594&_rid=98&password=45512&username=9424124211a&_sign=eb58be56610f2665e7b6fb367747eebc" //传递的数据的请求
+
+	//请求的地址
+	rurl := "http://sdkv4test.qcwanwan.com/index.php/api/account/register"
+
+	var wg sync.WaitGroup
+	num := 5000
+
+	//sleeptime := 1.0 / num //每次请求的时间间隔控制
+
+	//	//设置过期时间，规定的时间内，完成的请求的测试！和请求的结果的处理
+
+	//创建并发的请求的测试测试
+	timeout := make(chan bool, num) //创建时间缓冲区
+	//tokens := make(chan int, runtime.NumCPU()) //并发的实现请求
+	runnu := 0
+	go func() {
+		for {
+			select {
+			case <-timeout:
+				//处理相关的操作完成后继续进行的操作
+				//tokens <- 1
+				//case <-tokens: //完成操作的数据记录
+				time.Sleep(time.Millisecond) //实现了间隔时间的控制
+				//处理完成后跳转继续执行相关的操作
+				//timeout <- true
+			default:
+				time.Sleep(time.Millisecond)
+				timeout <- true
+				go func() {
+					str := utest.HttpDO("POST", rurl, pd)
+					fmt.Println(str)
+				}()
+			}
+			if runnu > 30 {
+				break
+			}
+			runnu += 1
+		}
+	}()
+	wg.Wait() //等待用户信息全部完成
+
+}
