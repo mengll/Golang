@@ -1,0 +1,53 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"net"
+)
+
+func main() {
+	fmt.Println("This is the main function!")
+	listen()
+}
+
+func start() {
+	fmt.Println("This is the start func!")
+}
+
+func listen() {
+	listener, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		fmt.Println("Failed to open port on 8080")
+	}
+
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			fmt.Println("Error accepat connections")
+		}
+		go handle(conn)
+	}
+
+}
+
+func handle(conn net.Conn) {
+	fmt.Println("This is the handle functyion!")
+	reader := bufio.NewReader(conn)
+	data, error := reader.ReadBytes('\n')
+	if error != nil {
+		fmt.Println("Failed to read from socket")
+		conn.Close()
+	}
+	response(data, conn)
+}
+
+func response(data []byte, conn net.Conn) {
+
+	defer func() {
+		conn.Close()
+	}()
+
+	conn.Write(data)
+
+}
