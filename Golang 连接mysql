@@ -1,0 +1,151 @@
+package dblib
+
+import (
+	"database/sql"
+	"fmt"
+	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
+)
+
+type mysqldb struct {
+	db *sql.DB
+}
+
+func NewMysqlDbObj() *mysqldb {
+
+	var err error
+
+	o := new(mysqldb)
+
+	o.db, err = sql.Open("mysql", "root:123456@tcp(192.168.1.248:3306)/anfanapi?charset=utf8")
+
+	if err != nil {
+		fmt.Errorf("open oracle database failed.", err)
+		return nil
+	}
+
+	fmt.Println("create mysql obj success.")
+	return o
+}
+
+func (this *mysqldb) GetErrorCode(err error) string {
+	ret := err.Error()
+	if n := strings.Index(ret, ":"); n > 0 {
+		return strings.TrimSpace(ret[:n])
+	} else {
+		fmt.Errorf("this error information is not mysql return info")
+		return ""
+	}
+}
+
+func (this *mysqldb) GetErrorMsg(err error) string {
+	ret := err.Error()
+	if n := strings.Index(ret, ":"); n > 0 {
+		return strings.TrimSpace(ret[n+1:])
+	} else {
+		fmt.Errorf("this error information is not mysql return info")
+		return ""
+	}
+}
+
+func (this *mysqldb) Query(sql string, args ...interface{}) (*sql.Rows, error) {
+	if this.db.Ping() != nil {
+		fmt.Errorf("数据库连接已断开")
+		nd := NewMysqlDbObj()
+		register("mysql", nd)
+		this = nd
+	}
+	return this.db.Query(sql, args...)
+}
+
+func (this *mysqldb) Exec(sql string, args ...interface{}) error {
+	if this.db.Ping() != nil {
+		fmt.Errorf("数据库连接已断开")
+		nd := NewMysqlDbObj()
+		register("mysql", nd)
+		this = nd
+	}
+	_, err := this.db.Exec(sql, args...)
+	return err
+}
+
+func (this *mysqldb) Begin() (*sql.Tx, error) {
+	return this.db.Begin()
+}
+
+func (this *mysqldb) Prepare(query string) (*sql.Stmt, error) {
+	return this.db.Prepare(query)
+}
+
+func (this *mysqldb) QueryRow(sql string, args ...interface{}) *sql.Row {
+	if this.db.Ping() != nil {
+		fmt.Errorf("数据库连接已断开")
+		nd := NewMysqlDbObj()
+		register("mysql", nd)
+		this = nd
+	}
+	return this.db.QueryRow(sql, args...)
+}
+
+func init() {
+	fmt.Println("This is register mysql")
+	register("mysql", NewMysqlDbObj())
+}
+
+func GetData(rows *sql.Rows) []map[string]string {
+	// Get column names
+	columns, err := rows.Columns()
+	if err != nil {
+		panic(err.Error()) // proper error handling instead of panic in your app
+	}
+
+	// Make a slice for the values
+	values := make([]sql.RawBytes, len(columns))
+
+	scanArgs := make([]interface{}, len(values))
+	for i := range values {
+		scanArgs[i] = &values[i]
+	}
+	var dat []map[string]string = []map[string]string{}
+	// Fetch rows
+	for rows.Next() {
+		// get RawBytes from data
+		err = rows.Scan(scanArgs...)
+		if err != nil {
+			panic(err.Error()) // proper error handling instead of panic in your app
+		}
+		mpp := make(map[string]string)
+		// Now do something with the data.
+		// Here we just print each column as a string.
+		var value string
+		for i, col := range values {
+			// Here we can check if the value is nil (NULL value)
+			if col == nil {
+				value = "NULL"
+			} else {
+				value = string(col)
+			}
+			mpp[columns[i]] = string(value)
+		}
+		dat = append(dat, mpp)
+
+	}
+	if err = rows.Err(); err != nil {
+		panic(err.Error()) // proper error handling instead of panic in your app
+	}
+
+	return dat
+}
+
+// Count total rows by sqlText
+//
+func Count(sql string, args ...interface{}) int64 {
+	var total int64
+	err := QueryRow(sql, args...).Scan(&total)
+	if err != nil {
+		fmt.Errorf("%v", err)
+		return 0
+	}
+	return total
+}
