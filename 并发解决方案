@@ -1,0 +1,58 @@
+package main
+import("fmt",""
+
+func main(){
+  runtime.GOMAXPROCS(runtime.NumCPU()) //设置当前的运行的方式是多核运行
+  c := make(chan bool ,10)
+  for i:=0 i<10;i++{
+    go Go(c,i)
+  }
+  
+  for i:=0;i<10;i++{
+    <-c
+  }
+  
+}
+
+func Go(c chan boll ,index int){
+a:=1
+for i :=0;i<1000000;i++{
+  a += i
+}
+
+fmt.PrintIn(index,a)
+
+c<-true
+}
+
+
+
+//第二种解决方案
+
+main(){
+runtime.GOMAXPROCS(runtime.NumCPU)
+wg := sync.WaitGroup{}
+wg.Add(10)
+
+for i :=0;i<10;i++{
+
+go Go(wg,i)
+}
+wg.Wait()
+}
+
+func Go (wg *sync.WaitGroup,index int){
+
+a :=1
+
+for i :=0;i<10000;i++{
+  a += i
+  }
+  fmt.PrintIn(index,a)
+wg.Done()
+
+
+}
+
+
+
