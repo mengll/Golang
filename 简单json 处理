@@ -1,0 +1,64 @@
+func Tlimit() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	mk := make(chan bool, 10)
+	for i := 0; i < 10; i++ {
+		//创建十次的并发编程
+		go func() {
+			//创建十次循环
+			itime := make(chan bool, 10)
+			//开始做
+			startdo := make(chan bool, 10)
+
+			for i := 0; i < 10; i++ {
+
+				//开始发送请求啥的
+				go func() {
+					time.Sleep(1 * time.Second)
+					if i < 10 {
+
+						startdo <- true
+					}
+
+				}()
+
+				go func() {
+					time.Sleep(3 * time.Second)
+					if i < 10 {
+						itime <- true
+					}
+				}()
+				go func() {
+					for i := 0; i < 10; i++ {
+						select {
+						case <-startdo:
+							fmt.Println("已完成", i)
+						case <-itime:
+							fmt.Println("超时", i)
+						}
+					}
+				}()
+
+			}
+			defer close(itime)
+			defer close(startdo)
+			//并发编程
+			mk <- true
+		}()
+
+	}
+
+	for i := 0; i < 10; i++ {
+		lz := <-mk
+		fmt.Println(lz)
+	}
+}
+
+//创建异步处理请求
+// 数据处理
+func dataChange() {
+	//{"openid":"100002755","sub_nickname":"\u5c0f\u53f701","uid":100002755,"username":"a18818818801","nickname":"a18818818801","mobile":"","avatar":"http:\/\/api5.zhuayou.com\/avatar.png","is_real":false,"is_adult":false,"vip":0,"token":"2x6awmh973c48csws0884so0o","balance":"0.00"}
+	var dat map[string]interface{}
+	json.Unmarshal([]byte(`{"openid":"100002755","sub_nickname":"\u5c0f\u53f701","uid":100002755,"username":"a18818818801","nickname":"a18818818801","mobile":"","avatar":"http:\/\/api5.zhuayou.com\/avatar.png","is_real":false,"is_adult":false,"vip":0,"token":"2x6awmh973c48csws0884so0o","balance":"0.00"}`), &dat)
+	fmt.Println(dat)
+
+}
