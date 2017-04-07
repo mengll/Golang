@@ -1,0 +1,155 @@
+package controllers
+
+//获取当前的钱包的信息
+import "TestTool/model"
+import (
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"sort"
+	"strings"
+)
+
+type User struct {
+	Ucid string
+	Sql  string
+}
+
+//获取当前用户的数据库中的信息
+
+//func (this *User) getUserRegister() map[string]string {
+//	this.Sql = "select * from ucusers where ucid = " + this.Ucid
+//	return this.getData()
+
+//}
+
+////快速的生成用户名的操作
+//func (this *User) getPlatformData() map[string]string {
+
+//	this.Sql = "select * from ucusers as u LEFT JOIN ucuser_oauth as o ON u.ucid = o.ucid WHERE u.ucid = " + this.Ucid
+//	return this.getData()
+//}
+
+////获取解绑 冻结数据库对应的信息
+
+func (this *User) getFreezeData() map[string]string {
+	this.Sql = "select ucid,uid,nickname,mobile,is_freeze from ucusers as u WHERE ucid =" + this.Ucid
+
+	return model.Mydb.Query(this.Sql)
+
+}
+
+//根据sql获取当前和数据
+//func (this *User) getData() map[string]string {
+//	query, err := dblib.Query(this.Sql) //获取当前联合插叙的结果
+//	if err != nil {
+//		fmt.Println("cuowu")
+//		back := map[string]string{}
+//		return back
+//	}
+//	dbs := dblib.GetData(query)
+//	return dbs[0] //map[string]string
+//}
+
+//测试执行，sql 语句操作
+
+//登录成功后的处理
+func init() {
+	Sql := "select ucid,uid,nickname,mobile,is_freeze from ucusers as u WHERE ucid = 100002563"
+	dat := model.Mydb.Query(Sql)
+	fmt.Println(dat)
+}
+
+//实现当前用户的登录 或注册的
+func UserLogin(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")             //允许访问所有域
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type") //header的类型
+
+	if err := r.ParseForm(); err != nil {
+		log.Println("Handler:page:ParseForm: ", err)
+	}
+	param := r.Form
+
+	requestUrl := param.Get("requestUrl")
+	requestData := param.Get("sendData")
+
+	dat := Httprequest(requestUrl, "POST", requestData)
+
+	//	if len(dat) > 0 {
+	//		datas := DataChange(dat)
+	//		fmt.Println(datas['data']) //
+	//		//map[string] interface {}
+	//	}
+
+	io.WriteString(w, dat)
+}
+
+//生成新的签名后的请求参数
+func NewSign(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")             //允许访问所有域
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type") //header的类型
+
+	if err := r.ParseForm(); err != nil {
+		log.Println("Handler:page:ParseForm: ", err)
+	}
+	param := r.Form
+
+	baseData := param.Get("sendData") //name=fj&age=23
+
+	k := strings.Split(baseData, "&") //name=fj
+
+	dt := make([]string, len(k))           //分配响应长度的对象
+	mps := make(map[string]string, len(k)) //创建数组的类型
+	for k, v := range k {
+		role := strings.Split(v, "=")
+		dt[k] = role[0]
+		mps[role[0]] = role[1]
+	}
+
+	//打印当前解析完成的
+	sort.Strings(dt)
+
+	appkeys := ""
+	backurl := ""
+
+	for _, v := range dt {
+		if v != "key" {
+			backurl += v + "=" + mps[v] + "&"
+		} else {
+			appkeys = mps[v]
+		}
+	}
+
+	//排序完成
+	sgin := &mymd5{Md: backurl + "key=" + appkeys}
+	_sign := sgin.Mk() //生成新的签名
+	io.WriteString(w, backurl+"_sign="+_sign)
+}
+
+//获取新的需求的数
+//实现当前用户的登录 或注册的
+func NewRequest(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")             //允许访问所有域
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type") //header的类型
+
+	if err := r.ParseForm(); err != nil {
+		log.Println("Handler:page:ParseForm: ", err)
+	}
+	param := r.Form
+
+	requestUrl := param.Get("requestUrl")
+	requestData := param.Get("sendData")
+
+	dat := Httprequest(requestUrl, "POST", requestData)
+
+	//	if len(dat) > 0 {
+	//		datas := DataChange(dat)
+	//		fmt.Println(datas['data']) //
+	//		//map[string] interface {}
+	//	}
+
+	io.WriteString(w, dat)
+}
