@@ -1,0 +1,6 @@
+由于GO语言中任何对象实例满足空接口的 interface{} 所以interface{} 可以表示任意的任何对象的数据类型
+
+var v1 interface{} = 1 //将int 类型赋值给interface{} 
+var v2 interface{} = "" //字符串赋值给和i任意的类型表示表示当前个ianderenyi
+
+func printf(fmt string ,args ...interface{}) //表示的任意的数据类型
