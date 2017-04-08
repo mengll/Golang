@@ -1,0 +1,170 @@
+/单个http请求的处理
+
+func Httprequest(requestUrl, requestType, requestData string) (string, bool) {
+
+	// 设置当前的超时的时间
+	timeout := make(chan bool)
+
+	go func() {
+		time.Sleep(3 * time.Second) //设置3秒的超时限制
+		timeout <- true
+	}()
+
+	requestEnd := make(chan bool)
+
+	var bodyText string = ""
+
+	go func() {
+		client := http.Client{}
+		reqest, err := http.NewRequest(requestType, requestUrl, strings.NewReader(requestData))
+		if err != nil {
+		}
+
+		reqest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		//req.Header.Set("Cookie", "name=anny")
+		reqest.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+		reqest.Header.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+		reqest.Header.Add("Accept-Encoding", "gzip, deflate")
+		reqest.Header.Add("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3")
+		reqest.Header.Add("Connection", "keep-alive")
+		reqest.Header.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0")
+		resp, err := client.Do(reqest)
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			// handle error
+		}
+		bodyText = string(body)
+		requestEnd <- true
+	}()
+
+	ok := false
+
+	select {
+	case <-timeout:
+		defer close(timeout)
+		defer close(requestEnd)
+	case <-requestEnd:
+		ok = true
+	}
+
+	//fmt.Println(bodyText)
+	return bodyText, ok
+}
+
+
+
+//实现并发的请求的
+/*
+* @param rnum int 总的请求数
+*@param rb int 并发次数
+*@param rurl string 请求的连接地址
+*@param rtype string POST GET 请求的方式
+*@param rdata string 转化后的数据
+ */
+
+func Total(rnum, rb int, rurl, rtype, rdata string) BackDat {
+	//开启多核的访问
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	var lock sync.RWMutex //读写锁
+	//	var ErrNum int        //请求失败的数量
+
+	runNum := rnum / rb //每个并发的执行的次数
+	//lnum := rnum % rb   //不在单个并发下的请求数据
+	//返回的数据的汇总
+
+	BackData := BackDat{RequestNum: rnum, RequestUrl: rurl, RequestData: rdata, Rb: rb} //初始化当前的返回的结果
+	//创建请求次数容器的
+	runDocker := make(chan bool, rnum) //长度为总的请求次数容器
+	//执行时间
+	//runToalTime := 0
+	startTime := time.Now().Unix() //获取当前的执行的Unix的时间戳
+
+	//第一层 并发的请求  设置超时的控制 防止长时间的阻塞，造成程序死机
+	for i := 0; i < rb; i++ {
+		//第二层并发请求下执行的请求次数
+		go func() {
+			for j := 0; j < runNum; j++ {
+				_, ok := Httprequest(rurl, rtype, rdata)
+				if ok == false {
+					lock.Lock()
+					BackData.ErrNum++
+					lock.Unlock()
+				}
+				runDocker <- true //当前的循环，执行完成
+
+			} //second end
+
+		}() //go end
+
+	} //for end
+
+	for i := 0; i < rnum; i++ {
+		<-runDocker
+	}
+
+	endTime := time.Now().Unix()                //获取当前的执行的Unix的时间戳
+	BackData.UseTime = int(endTime - startTime) //执行时间
+	defer close(runDocker)                      //程序执行完毕，结束当前进程
+	return BackData
+}
+
+type BackDat struct {
+	RequestNum  int
+	Rb          int
+	ErrNum      int
+	UseTime     int
+	RequestUrl  string
+	RequestData string
+}
+
+//获取新的需求的数
+//实现当前用户的登录 或注册的
+func NewRequest(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")             //允许访问所有域
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type") //header的类型
+
+	if err := r.ParseForm(); err != nil {
+		log.Println("Handler:page:ParseForm: ", err)
+	}
+	param := r.Form
+
+	requestUrl := param.Get("requestUrl")
+	requestData := param.Get("sendData")
+
+	dat, _ := Httprequest(requestUrl, "POST", requestData)
+
+	//	if len(dat) > 0 {
+	//		datas := DataChange(dat)
+	//		fmt.Println(datas['data']) //
+	//		//map[string] interface {}
+	//	}
+	dt := Total(1000, 10, requestUrl, "POST", requestData)
+	//fmt.Println(dt)
+	//拼接当前的请求的结果
+	//jk := "\n\n请求次数:" + string(dt.RequestNum) + " 并发次数: " + string(dt.Rb) + " 错误次数: " + string(dt.ErrNum) + " 用时: " + string(dt.UseTime)
+	jk := JsonEncodeString(dt)
+	io.WriteString(w, dat+jk)
+}
+
+//数据格式转化的操作
+
+func DataChange(data string) map[string]interface{} {
+	var dat map[string]interface{}
+	json.Unmarshal([]byte(data), &dat)
+	return dat
+}
+
+// 结构转换成json对象
+func JsonEncodeString(data interface{}) string {
+	back, err := json.Marshal(data)
+	if err != nil {
+		return "encode error"
+	}
+	return string(back)
+}
+
+
+
