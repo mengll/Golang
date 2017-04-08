@@ -11,3 +11,9 @@ go 中的格式化
 fmt.Sprintf("文件中%s",file) 的方式格式化输出 字符串
 ###将go中的map的格式的转化成json数据格式
 json.MarshalIndent（）
+
+###时间格式化的输出
+	now := time.Now()
+	layout := "2006-01-02-150405"
+	return fmt.Sprintf("%s/db/migrate/%s-%s.sql", path, now.Format(layout), name)
+
