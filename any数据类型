@@ -4,3 +4,10 @@ var v1 interface{} = 1 //将int 类型赋值给interface{}
 var v2 interface{} = "" //字符串赋值给和i任意的类型表示表示当前个ianderenyi
 
 func printf(fmt string ,args ...interface{}) //表示的任意的数据类型
+
+
+go 中的格式化
+###格式化字符串的
+fmt.Sprintf("文件中%s",file) 的方式格式化输出 字符串
+###将go中的map的格式的转化成json数据格式
+json.MarshalIndent（）
