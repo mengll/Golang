@@ -1,0 +1,20 @@
+func check(err error){
+  if err !=nil {
+    panic(err)
+    }
+    }
+    
+    func safeHandler(fn http.HandlerFuc) http.HandlerFunc{
+        return func( w http.ResponseWrite,r *http.Request){
+          defer func(){
+            if e,ok := recover().(error); ok {
+               http.Error(w,e.Error(),http.StatusInternalServerError)
+               log.Panic()
+               log.Panic()
+               }}()
+               fn(w,r)
+            
+            }
+            }
+            
+     mux.HandleFunc ("/",safeHandler(func(w http.ResponseWriter,r *http.Request))
