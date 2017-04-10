@@ -1,0 +1,56 @@
+
+// 正则字符串替换
+func plk(inputStr, outputStr string) {
+
+	sameType := []map[string]interface{}{}   //相同的结果
+	errType := []map[string]interface{}{}    //结构不同的表的数据表现形式
+	reg := regexp.MustCompile(`(\{[^}]*\})`) //匹配[{},{}]
+
+	reg.ReplaceAllStringFunc(inputStr, func(sd string) string {
+		Indat := DataChange(sd) //匹配输入打单个数据
+		//输出结果匹配
+		reg.ReplaceAllStringFunc(outputStr, func(sda string) string {
+			outd := DataChange(sda)
+			isTheSame := true
+
+			for kk, vv := range Indat {
+				if outd[kk] != vv {
+					fmt.Println("the defa", kk)
+					isTheSame = false
+				}
+			}
+
+			if isTheSame == false {
+				//当前的结果未能正确的匹配到加入错误队列
+
+				ishad := false
+				for _, b := range errType {
+					if MaptoJson(b) == MaptoJson(Indat) {
+						ishad = true
+					}
+				}
+				if ishad == false {
+					errType = append(errType, Indat)
+				}
+			}
+
+			if isTheSame == true {
+				//sameType[indexNum] = outd
+				ishad := false
+				for _, b := range sameType {
+					if MaptoJson(b) == MaptoJson(outd) {
+						ishad = true
+					}
+				}
+				if ishad == false {
+					sameType = append(sameType, outd)
+				}
+			}
+			return sda
+		}) //匹配到结果的输出
+
+		return ""
+	})
+	fmt.Println("new The same:", sameType)
+	fmt.Println("The is error Type:", errType)
+}
