@@ -17,3 +17,27 @@ json.MarshalIndent（）
 	layout := "2006-01-02-150405"
 	return fmt.Sprintf("%s/db/migrate/%s-%s.sql", path, now.Format(layout), name)
 
+
+
+func ConfigPath(name string) string {
+	fmt.Println(name)
+	return "utest/" + name + ".json" //返回当前
+}
+
+//查询内容写入到文件中
+
+func WriteDtFile(fileName, content string) {
+
+	path := ConfigPath(fileName)
+
+	fl, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE, 0744)
+	if err != nil {
+		return
+	}
+	defer fl.Close()
+	n, err := fl.Write([]byte(content + "\n"))
+	if err == nil && n < len(content) {
+		err = io.ErrShortWrite
+	}
+	fmt.Println(n)
+}
