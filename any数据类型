@@ -58,6 +58,44 @@ func WriteDtFile(fileName, content string) {
 
 
 ###数据格式转化的操作
+package main
+
+import (
+	"fmt"
+)
+
+type Game struct {
+	BName string
+}
+
+type G interface {
+	connnect()
+	dis()
+}
+
+func main() {
+	//var gh G
+	//gh = &Game{BName: "good"}
+
+	//c	创建非侵入式的编程的风格
+	var ga G = &Game{BName: "mengll"}
+	ga.connnect()
+	ga.dis()
+	//gh.connnect()
+
+	isa, ok := interface{}(ga).(G)
+	fmt.Println(isa)
+	fmt.Println(ok)
+
+}
+
+func (this *Game) connnect() {
+	fmt.Println("This is Connnect func ")
+}
+
+func (this *Game) dis() {
+	fmt.Println("This is dis")
+}
 
 
 
