@@ -18,3 +18,13 @@ func check(err error){
             }
             
      mux.HandleFunc ("/",safeHandler(func(w http.ResponseWriter,r *http.Request))
+
+
+func B() {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("This had some error")
+		}
+	}()
+	panic("Pannic This is func ")
+}
