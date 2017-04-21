@@ -97,5 +97,17 @@ func (this *Game) dis() {
 	fmt.Println("This is dis")
 }
 
+func maopao() {
+	mk := [...]int{5, 7, 2, 9, 7, 0, 6}
+	for i := 0; i < 7; i++ {
+		for j := 0; j < 7-i-1; j++ {
+			if mk[j] > mk[j+1] {
+				mk[j], mk[j+1] = mk[j+1], mk[j]
+			}
+		}
+	}
+	fmt.Println(mk)
+}
+
 
 
