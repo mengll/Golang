@@ -1,0 +1,153 @@
+package main
+
+import (
+	"crypto/md5"
+	"encoding/hex"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"sort"
+	"strings"
+)
+
+type mymd5 struct {
+	Md string
+}
+
+var signKey string = "84ee7ad1a1c0e67c02d7c79418e532a0" //安峰游戏提供的sign_key
+
+//验证签名
+func vf(w http.ResponseWriter, r *http.Request) {
+	//验证
+	w.Header().Set("Access-Control-Allow-Origin", "*")             //允许访问所有域
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type") //header的类型
+
+	if err := r.ParseForm(); err != nil {
+		fmt.Println("Handler:page:ParseForm: ", err)
+	}
+	param := r.Form
+	sign := param.Get("sign") //获取签名
+
+	//创建保存的map
+	formData := []string{}
+	for k, _ := range param {
+		if k != "sign" {
+			formData = append(formData, k)
+		}
+	}
+	//排序前
+
+	sort.Strings(formData)
+
+	back := ""
+	for _, vv := range formData {
+		back += vv + "=" + string(param.Get(vv)) + "&"
+	}
+
+	back += "sign_key=" + signKey
+
+	sgin := &mymd5{Md: back}
+	_sign := sgin.Mk() //生成新的签名
+
+	if _sign == sign {
+		fmt.Println("签名相同")
+		//return true
+	} else {
+		fmt.Println("签名不用")
+		//return false
+	}
+}
+
+//执行发送请求
+func index(w http.ResponseWriter, r *http.Request) {
+	//order_url := "http://sdkv4.qcwan.com/api/v1.0/cp/info/order" //查询验证当前订单的地址
+
+	//user_auth := "http://sdkv4.qcwan.com/api/v1.0/cp/user/auth" //验证当前用户的信息地址
+
+	test_url := "http://127.0.0.1:8080/vf"
+
+	//订单验证字符串
+	order_str := fmt.Sprintf("app_id=%d&open_id=%s&sn=%s&vorder_id=%s", 778, "b7qvattt01wkwc0g080cw0k0k", "170421175437312464423937", "1492768478794") //订单验证传递的测试参数
+	//用户信息验证
+	//auth_str := fmt.Sprintf("token=%s&app_id=%d&open_id=%s", "e2c8hwn1vago8008k8k8c80go", 778, "4x3be50ywv0ggk4k4k8owgk0o")
+	//用户信息验证代码
+	pl := NewSign(order_str) //生成带有签名好的传递的连接信息
+
+	dat, ok := Httprequest(test_url, "POST", pl)
+	fmt.Println(dat, ok)
+}
+
+func main() {
+	http.HandleFunc("/", index)
+	http.HandleFunc("/vf", vf)               // 设置当前的页面的访问的限制的控制的处理
+	err := http.ListenAndServe(":8080", nil) // 设置监听的端口
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
+}
+
+//单个http请求的处理
+
+func Httprequest(requestUrl, requestType, requestData string) (string, bool) {
+
+	// 设置当前的超时的时间
+	var bodyText string = ""
+	client := http.Client{}
+	fmt.Println(requestData)
+	reqest, err := http.NewRequest(requestType, requestUrl, strings.NewReader(requestData))
+	if err != nil {
+	}
+
+	reqest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	reqest.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+	reqest.Header.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+	reqest.Header.Add("Accept-Encoding", "gzip, deflate")
+	reqest.Header.Add("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3")
+	reqest.Header.Add("Connection", "keep-alive")
+	reqest.Header.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0")
+
+	resp, err := client.Do(reqest)
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		// handle error
+		return "err", false
+	}
+	bodyText = string(body)
+	//fmt.Println(bodyText)
+	return bodyText, true
+}
+
+func (m5 *mymd5) Mk() string {
+	h := md5.New()
+	h.Write([]byte(m5.Md))                // 转化成字符串的形式 并给出了初始化的数据!
+	return hex.EncodeToString(h.Sum(nil)) // 输出加密结果
+}
+
+//创建签名的
+//生成新的签名后的请求参数
+func NewSign(baseData string) string {
+	k := strings.Split(baseData, "&")      //name=fj
+	dt := make([]string, len(k))           //分配响应长度的对象
+	mps := make(map[string]string, len(k)) //创建数组的类型
+	for k, v := range k {
+		role := strings.Split(v, "=")
+		dt[k] = role[0]
+		mps[role[0]] = string(role[1])
+	}
+	//打印当前解析完成的
+	sort.Strings(dt)
+	backurl := ""
+	for _, v := range dt {
+		if v != "sgin_key" {
+			backurl += v + "=" + mps[v] + "&"
+		}
+	}
+	//排序完成
+	sgin := &mymd5{Md: backurl + "sign_key=" + signKey}
+	_sign := sgin.Mk() //生成新的签名
+	return backurl + "sign=" + _sign
+}
