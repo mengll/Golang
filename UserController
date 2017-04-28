@@ -1,0 +1,454 @@
+package controllers
+
+//获取当前的钱包的信息
+import (
+	"TestTool/InitPackage"
+	"TestTool/model"
+	"fmt"
+	"io"
+
+	"log"
+	"net/http"
+	"os"
+	"runtime"
+	"sort"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+)
+
+type User struct {
+	Ucid string
+	Sql  string
+}
+
+//创建一个用户信息数据保存
+type UserData struct {
+	UserName string
+	Token    string
+	Pkey     string
+	Password string
+	Pid      string
+}
+
+var Udata UserData //创建一个新的
+
+const (
+	permissions = 0744
+)
+
+//获取当前用户的数据库中的信息
+
+//func (this *User) getUserRegister() map[string]string {
+//	this.Sql = "select * from ucusers where ucid = " + this.Ucid
+//	return this.getData()
+
+//}
+
+////快速的生成用户名的操作
+//func (this *User) getPlatformData() map[string]string {
+
+//	this.Sql = "select * from ucusers as u LEFT JOIN ucuser_oauth as o ON u.ucid = o.ucid WHERE u.ucid = " + this.Ucid
+//	return this.getData()
+//}
+
+////获取解绑 冻结数据库对应的信息
+
+func (this *User) getFreezeData() interface{} {
+	this.Sql = "select ucid,uid,nickname,mobile,is_freeze from ucusers as u WHERE ucid =" + this.Ucid
+
+	v, o := model.Mydb.Query(this.Sql)
+	if o {
+		return v
+	}
+	return ""
+}
+
+////实现当前用户的登录 或注册的
+func UserLogin(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")             //允许访问所有域
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type") //header的类型
+
+	if err := r.ParseForm(); err != nil {
+		log.Println("Handler:page:ParseForm: ", err)
+	}
+	param := r.Form
+
+	requestUrl := param.Get("requestUrl")
+	requestData := param.Get("sendData")
+
+	dat, _ := Httprequest(requestUrl, "POST", requestData)
+
+	//	if len(dat) > 0 {
+	//		datas := DataChange(dat)
+	//		fmt.Println(datas['data']) //
+	//		//map[string] interface {}
+	//	}
+
+	io.WriteString(w, dat)
+}
+
+//生成新的签名后的请求参数
+func NewSign(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")             //允许访问所有域
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type") //header的类型
+
+	if err := r.ParseForm(); err != nil {
+		log.Println("Handler:page:ParseForm: ", err)
+	}
+	param := r.Form
+
+	baseData := param.Get("sendData") //name=fj&age=23
+
+	k := strings.Split(baseData, "&") //name=fj
+
+	dt := make([]string, len(k))           //分配响应长度的对象
+	mps := make(map[string]string, len(k)) //创建数组的类型
+	for k, v := range k {
+		role := strings.Split(v, "=")
+		dt[k] = role[0]
+		mps[role[0]] = string(role[1])
+	}
+
+	//打印当前解析完成的
+	sort.Strings(dt)
+
+	appkeys := ""
+	backurl := ""
+
+	for _, v := range dt {
+		if v != "key" {
+			backurl += v + "=" + mps[v] + "&"
+		} else {
+			appkeys = mps[v]
+		}
+	}
+
+	//排序完成
+	sgin := &mymd5{Md: backurl + "key=" + appkeys}
+	_sign := sgin.Mk() //生成新的签名
+	io.WriteString(w, backurl+"_sign="+_sign)
+}
+
+//获取新的需求的数
+//实现当前用户的登录 或注册的
+func NewRequest(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := recover(); err != nil {
+			Logdebug("error", JsonEncodeString(err))
+		}
+	}()
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")             //允许访问所有域
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type") //header的类型
+
+	if err := r.ParseForm(); err != nil {
+		log.Println("Handler:page:ParseForm: ", err)
+	}
+	param := r.Form
+
+	requestUrl := param.Get("requestUrl")
+	requestData := param.Get("sendData")
+
+	dat, _ := Httprequest(requestUrl, "POST", requestData)
+
+	//获取期望的数据
+	wantData := param.Get("wantData")
+	requestNum := param.Get("requestNum")
+	Bfnum := param.Get("Bfnum")
+
+	bnum, error := strconv.Atoi(requestNum) //转换成整型
+	if error != nil {
+		return
+	}
+	bf, error := strconv.Atoi(Bfnum)
+	if error != nil {
+		return
+	}
+
+	jk := ""
+	if bnum > 1 {
+		dt := Total(bnum, bf, requestUrl, "POST", requestData)
+		//fmt.Println(dt)
+		//拼接当前的请求的结果
+		//jk := "\n\n请求次数:" + string(dt.RequestNum) + " 并发次数: " + string(dt.Rb) + " 错误次数: " + string(dt.ErrNum) + " 用时: " + string(dt.UseTime)
+		jk = fmt.Sprintf("\n\n请求次数: %d 并发次数: %d 错误次数: %d 用时: %d 每次执行时间 ：%f", dt.RequestNum, dt.Rb, dt.ErrNum, dt.UseTime, float64(dt.UseTime)/float64(dt.RequestNum))
+
+	} else {
+
+	}
+	ddc := DataChange(dat)
+	kl := ddc["data"]
+	pop := JsonEncodeString(kl)
+	pl := DataChange(pop)
+	//klk := DataChange(kl)
+	//fmt.Println("asd", ddc, pl)
+	//fmt.Println("--->popo", JsonEncodeString(pl["data"]))
+	outstr := ""
+	if pl["data"] != nil {
+		outstr = JsonEncodeString(pl["data"])
+	} else {
+		outstr = JsonEncodeString(pl)
+	}
+	sp, ep := plk(wantData, outstr)
+	io.WriteString(w, dat+jk+"\n同样的:"+sp+"\n不同："+ep)
+}
+
+type BackDat struct {
+	RequestNum  int
+	Rb          int
+	ErrNum      int
+	UseTime     int
+	RequestUrl  string
+	RequestData string
+}
+
+//实现并发的请求的
+/*
+* @param rnum int 总的请求数
+*@param rb int 并发次数
+*@param rurl string 请求的连接地址
+*@param rtype string POST GET 请求的方式
+*@param rdata string 转化后的数据
+ */
+
+func Total(rnum, rb int, rurl, rtype, rdata string) BackDat {
+	//开启多核的访问
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	var lock sync.RWMutex //读写锁
+	//	var ErrNum int        //请求失败的数量
+	runNum := rnum / rb //每个并发的执行的次数
+	//lnum := rnum % rb   //不在单个并发下的请求数据
+	//返回的数据的汇总
+
+	BackData := BackDat{RequestNum: rnum, RequestUrl: rurl, RequestData: rdata, Rb: rb} //初始化当前的返回的结果
+	//创建请求次数容器的
+	runDocker := make(chan bool, rnum) //长度为总的请求次数容器
+	//执行时间
+	//runToalTime := 0
+	startTime := time.Now().Unix() //获取当前的执行的Unix的时间戳
+
+	//第一层 并发的请求  设置超时的控制 防止长时间的阻塞，造成程序死机
+	for i := 0; i < rb; i++ {
+		//第二层并发请求下执行的请求次数
+		go func() {
+			defer func() {
+				if err := recover(); err != nil {
+					lock.Lock()
+					BackData.ErrNum++
+					lock.Unlock()
+					runDocker <- true //当前的循环，执行完成
+				}
+			}()
+			for j := 0; j < runNum; j++ {
+				_, ok := Httprequest(rurl, rtype, rdata)
+				if ok == false {
+					lock.Lock()
+					BackData.ErrNum++
+					lock.Unlock()
+				}
+				runDocker <- true //当前的循环，执行完成
+
+			} //second end
+
+		}() //go end
+
+	} //for end
+
+	for i := 0; i < rnum; i++ {
+		<-runDocker
+	}
+	endTime := time.Now().Unix()                //获取当前的执行的Unix的时间戳
+	BackData.UseTime = int(endTime - startTime) //执行时间
+	defer close(runDocker)                      //程序执行完毕，结束当前进程
+	return BackData
+}
+
+//获取当前渠道游戏的信息
+func GetUserInfo(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("出错了")
+		}
+
+	}()
+	w.Header().Set("Access-Control-Allow-Origin", "*")             //允许访问所有域
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type") //header的类型
+
+	if err := r.ParseForm(); err != nil {
+		log.Println("Handler:page:ParseForm: ", err)
+	}
+	param := r.Form
+
+	uname := param.Get("uname")
+	if uname == "" {
+		io.WriteString(w, "no userName")
+		return
+	}
+	//sql := "select rid,pid from ucusers where uid ='" + uname + "' or mobile ='" + uname + "'"
+	sql := fmt.Sprintf("select rid,pid from ucusers where uid = %q or mobile =%q", uname, uname)
+	fmt.Println(sql)
+	dat, ok := model.Mydb.Query(sql)
+	fmt.Println(dat)
+	if ok {
+		io.WriteString(w, JsonEncodeString(dat))
+	}
+
+}
+
+func ConfigPath(name string) string {
+	fmt.Println(name)
+	return "utest/" + name + ".json" //返回当前
+}
+
+//查询内容写入到文件中
+
+func WriteDtFile(fileName, content, spl string) {
+
+	path := ConfigPath(fileName)
+
+	fl, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE, 0744)
+	if err != nil {
+		return
+	}
+	defer fl.Close()
+	n, err := fl.Write([]byte(content + spl + "\n"))
+	if err == nil && n < len(content) {
+		err = io.ErrShortWrite
+	}
+	fmt.Println(n)
+}
+
+//创建新的用户登录
+
+func Newlogin(w http.ResponseWriter, r *http.Request) {
+
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println(err)
+			fmt.Println("请求出错了")
+		}
+	}()
+
+	if err := r.ParseForm(); err != nil {
+		log.Println("Handler:page:ParseForm: ", err)
+	}
+
+	param := r.Form
+	uname := param.Get("username")
+	upass := param.Get("password")
+	//检查当前的用户信息
+	if InitPackage.CheckName(uname) == false || InitPackage.CheckName(upass) == false {
+		fmt.Println("用户名错误")
+	}
+
+	sql := fmt.Sprintf("select * from ucusers where uid = %q or mobile =%q", uname, uname)
+	fmt.Println(sql)
+	dat, ok := model.Mydb.Query(sql)
+	fmt.Println(ok)
+
+	m5 := &mymd5{Md: upass}
+	pass := m5.Mk()
+	m5.Md = pass + dat[0]["salt"]
+	pp := m5.Mk()
+
+	if pp == dat[0]["password"] {
+		Udata.UserName = uname
+		Udata.Password = upass
+		Udata.Token = dat[0]["token"]
+		fmt.Println("用户密码相同")
+	} else {
+		url := "/"
+		http.Redirect(w, r, url, http.StatusFound)
+		fmt.Println("用户密码不同")
+	}
+
+	pid := dat[0]["pid"] //获取应用ID
+	//cokcont, _ := r.Cookie("Pkey")
+	Udata.Pid = pid
+
+	//	val := GetCookie("Pkey", r) //参数传递，传值和传引用
+	//	//fmt.Println(cokcont.Value) //获取当前缓存的K
+	//	fmt.Println(val)
+
+	Key := SignByPid(pid) //回去当前的key
+	if Key == "" {
+		fmt.Println("当前的Key不存在")
+	}
+	Udata.Pkey = Key
+	SetCookie("Pkey", Key, 3600, &w)
+
+	//信息展示到页面
+	renderHTML(w, "admin.html", Udata)
+
+}
+
+//通过pid生成签名
+
+func SignByPid(pid string) string {
+	sql := fmt.Sprintf("SELECT priKey as mkey FROM procedures where pid = %s", pid)
+	dat, ok := model.Mydb.Query(sql)
+	if ok == true {
+		m5 := &mymd5{Md: dat[0]["mkey"]}
+		return m5.Mk()
+	}
+	return ""
+}
+
+//检查当前登录
+func CheckLogin(w http.ResponseWriter, r *http.Request) {
+	cokcont, _ := r.Cookie("Pkey")
+	if cokcont == nil {
+		http.Redirect(w, r, "/", http.StatusFound) //返回当前的请求的状态
+	}
+}
+
+//创建
+func SetCookie(k, v string, t int, w *http.ResponseWriter) {
+	COOKIE_MAX_MAX_AGE := t // 单位：秒。
+	maxAge := int(COOKIE_MAX_MAX_AGE)
+
+	uid_cookie := &http.Cookie{
+		Name:     k,
+		Value:    v,
+		Path:     "/",
+		HttpOnly: false,
+		MaxAge:   maxAge}
+	http.SetCookie(*w, uid_cookie) //
+}
+
+//获取Key
+func GetCookie(k string, r *http.Request) string {
+	cokcont, _ := r.Cookie(k)
+	return cokcont.Value //获取当前缓存的K
+}
+
+//用户登录后的首页 当前的值不存在
+
+func HomePage(w http.ResponseWriter, r *http.Request) {
+	c := GetCookie("Pkey", r)
+	if c == "" {
+		fmt.Println("您好，查询的数据不存在")
+	}
+
+	fmt.Println(c) //输出当前的值
+
+	up := r.URL.Query() // 获取查询的值
+
+	fmt.Println(up.Get("page"))
+	fmt.Println(up.Get("name"))
+	//获取一个不存在的值
+	if up.Get("show") == "" {
+		fmt.Println("对象不存在！")
+	}
+
+	renderHTML(w, "homepage.html", Udata)
+}
+
+//初始化头部的信息
+
+func InitHeader(r *http.Request) {
+
+}
