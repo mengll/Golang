@@ -1,0 +1,184 @@
+package controllers
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
+)
+
+//创建请求过来的数据的保存的，形式的处理的过程化的方法
+type PostData struct {
+	Data string //保存原始，传递过来的数据
+}
+
+// 创建生成签名的方法
+
+func CreateSign(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "POST" {
+		// 解析客户端请求的信息
+		if err := r.ParseForm(); err != nil {
+			log.Println("Handler:page:ParseForm: ", err)
+		}
+		fmt.Println(r.PostForm)
+		// 获取客户端输入的内容
+		u := PostData{}
+		u.Data = r.Form.Get("data")
+		log.Println(u.Data)
+
+	} else {
+		// 如果不是通过 POST 提交的数据，则将页面重定向到主页
+	}
+}
+
+//数据格式转化的操作
+
+func DataChange(data string) map[string]interface{} {
+	var dat map[string]interface{}
+	json.Unmarshal([]byte(data), &dat)
+	return dat
+}
+
+// 结构转换成json对象
+func JsonEncodeString(data interface{}) string {
+	back, err := json.Marshal(data)
+	if err != nil {
+		return "encode error"
+	}
+	return string(back)
+}
+
+//map的类型转换成！
+
+func MaptoJson(data map[string]interface{}) string {
+	configJSON, err := json.MarshalIndent(data, "", "\t")
+	if err != nil {
+		return ""
+	}
+	return string(configJSON) //返回格式化后的字符串的内容0
+}
+
+// 正则字符串替换
+func plk(inputStr, outputStr string) (string, string) {
+
+	sameType := []map[string]interface{}{}   //相同的结果
+	errType := []map[string]interface{}{}    //结构不同的表的数据表现形式
+	reg := regexp.MustCompile(`(\{[^}]*\})`) //匹配[{},{}]
+
+	reg.ReplaceAllStringFunc(inputStr, func(sd string) string {
+		Indat := DataChange(sd) //匹配输入打单个数据
+		//输出结果匹配
+		reg.ReplaceAllStringFunc(outputStr, func(sda string) string {
+			outd := DataChange(sda)
+			isTheSame := true
+
+			for kk, vv := range Indat {
+				if outd[kk] != vv {
+					isTheSame = false
+				}
+			}
+
+			if isTheSame == false {
+				//当前的结果未能正确的匹配到加入错误队列
+
+				ishad := false
+				for _, b := range errType {
+					if MaptoJson(b) == MaptoJson(Indat) {
+						ishad = true
+					}
+				}
+				if ishad == false {
+					errType = append(errType, outd)
+				}
+			}
+
+			if isTheSame == true {
+				//sameType[indexNum] = outd
+				ishad := false
+				for _, b := range sameType {
+					if MaptoJson(b) == MaptoJson(outd) {
+						ishad = true
+					}
+				}
+				if ishad == false {
+					sameType = append(sameType, outd)
+				}
+			}
+			return sda
+		}) //匹配到结果的输出
+
+		return ""
+	})
+	//	return MaptoJson(sameType), MaptoJson(errType)
+	sp := ""
+	for _, v := range sameType {
+		sp += MaptoJson(v)
+	}
+	ep := ""
+
+	for _, v := range errType {
+		ep += MaptoJson(v)
+	}
+	return sp, ep
+}
+
+//读取配置文件的操作
+func init() {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("初始化失败！")
+			return
+		}
+	}()
+	go goChannel()
+}
+
+/*
+获取程序运行路径
+*/
+func getCurrentDirectory() string {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		fmt.Println("This is an error")
+	}
+	return strings.Replace(dir, "\\", "/", -1)
+}
+
+var LogChannel chan map[string]string = make(chan map[string]string, 100) //创建一个缓存区
+
+//创建缓冲区进程
+
+func goChannel() {
+	for {
+		select {
+		case con := <-LogChannel:
+			path := getCurrentDirectory()
+
+			fl, err := os.OpenFile(path+"/"+con["h"]+".json", os.O_APPEND|os.O_CREATE, 0744)
+			if err != nil {
+				return
+			}
+			defer fl.Close()
+			n, err := fl.Write([]byte(con["c"] + "\r" + "\n"))
+			if err == nil && n < len(con["c"]) {
+				err = io.ErrShortWrite
+			}
+
+		default:
+		}
+	}
+}
+
+//写入日志
+func Logdebug(h, c string) {
+	pl := make(map[string]string)
+	pl["h"] = h
+	pl["c"] = c
+	LogChannel <- pl
+}
