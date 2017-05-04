@@ -1,0 +1,45 @@
+package main
+
+import (
+	"crypto/hmac"
+	"crypto/sha1"
+	"encoding/base64"
+	//"encoding/hex"
+	"fmt"
+	//"strconv"
+)
+
+func main() {
+	//WQnMGQAB98xZCcwZAAH3zOIyRwVG0Fk0qEigWw
+	fmt.Println(len("WQnMGQAB98xZCcwZAAH3zOIyRwVG0Fk0qEigWw"))
+	Lstr := "WQnMGQAB98xZCcwZAAH3zOIyRwVG0Fk0qEigWw"
+	for {
+		if len(Lstr)%4 == 0 {
+			break
+		}
+		Lstr += "="
+	}
+	enc_price, _ := base64.StdEncoding.DecodeString(Lstr)
+	fmt.Println(len(enc_price))
+	fmt.Println(enc_price)
+	iv := enc_price[0:16]
+	price := enc_price[16:24]
+	sig := enc_price[24:28]
+	fmt.Println(iv)
+	fmt.Println(price)
+	fmt.Println(sig)
+	h := hmac.New(sha1.New, []byte("5678dcba1234abcd5678dcba1234abcd"))
+	h.Write(iv)
+	//dec_price := hex.EncodeToString(h.Sum(nil))
+	//kla := make([]string, 8)
+	for i := 0; i < 8; i++ {
+		fmt.Println(price[i])
+		//kla[i] = int(price[i]) ^ int(dec_price[i])
+	}
+
+}
+
+//错误头信息   错误描述  错误跳转页 多长时间实现页面跳转
+func errpage() {
+
+}
