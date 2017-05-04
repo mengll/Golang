@@ -13,10 +13,11 @@ var I_key string = "ebcd1234efgh5678ebcd1234efgh5678" //原始值
 var E_key string = "5678dcba1234abcd5678dcba1234abcd" //加密过的
 
 func main() {
+
 	fmt.Println("--->><<<<")
 	p_price := Decprice("VH2SogAO-2ZUfZKiAA77ZlONOMFBLsR53TOlOg")
 	fmt.Println(p_price)
-
+	CreatSign("04d0d988f3634f3f80147dc09a5bfd42", "http://adx.toutiao.com/adxbuyer/api/v1.0/creatives/put?dspid=12345&creative_num=3")
 }
 
 //返回金额是零表示失败
@@ -95,3 +96,13 @@ func Int64ToBytes(i int64) []byte {
 }
 
 //生成签名
+func CreatSign(key, url string) {
+	e_keya := []byte(key)
+	urls := []byte(url)
+	e_keya_d := hmac.New(sha1.New, e_keya)
+	e_keya_d.Write(urls)
+	e_keya_end := e_keya_d.Sum(nil)
+	return base64.StdEncoding.EncodeToString(e_keya_end)
+}
+
+//解析数据
