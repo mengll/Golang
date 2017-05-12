@@ -1,0 +1,19 @@
+安装部分
+1.在windows下安装好Go包，下载地址http://www.golangtc.com/download
+
+2.设置GOPATH的环境变量，从github上获取的protobuf会下载到GOPATH目录下
+
+3.安装Git包，https://git-scm.com/downloads/
+
+4.在PATH变量中添加GIT.exe的路径D:\Program Files\Git\bin(自己选择自己安装的路径)
+
+5.在CMD中分别运行git和go命令，看看能不能识别这两个命令，如果不行，应该是1-4中遗漏了某个步骤
+
+6.分别运行
+go get -u github.com/golang/protobuf/proto
+go get -u github.com/golang/protobuf/protoc-gen-go
+安装protobuf库
+
+7.下载protoc.exe，proto生成.go文件的工具 https://github.com/google/protobuf/releases
+
+8 protoc ./test.proto --go_out=./ 编译当前的文档的
