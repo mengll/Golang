@@ -1,0 +1,152 @@
+//package main
+
+////bb := [10 32 50 48 49 55 48 53 49 54 50 48 48 54 49 55 48 49 48 48 48 52 48 52 56 48 55 51 54 48 48 66 69 67 18 163 6 10 160 6 10 24 53 57 49 97 101 98 51 57 50 57 101 101 100 102 55 98 99 102 97 56 49 102 52 55 18 16 48 55 97 97 101 48 99 54 56 102 55 98 52 49 53 49 24 217 4 32 188 214 235 200 149 239 252 200 1 42 208 5 8 11 18 151 1 104 116 116 112 58 47 47 106 114 116 116 46 113 99 119 97 110 119 97 110 46 99 111 109 47 119 105 110 47 110 111 116 105 102 121 63 117 115 101 114 95 105 100 61 123 117 115 101 114 95 105 100 125 38 114 101 113 117 101 115 116 95 105 100 61 123 114 101 113 117 101 115 116 95 105 100 125 38 97 100 105 100 61 123 97 100 105 100 125 38 98 105 100 95 112 114 105 99 101 61 123 98 105 100 95 112 114 105 99 101 125 38 105 112 61 123 105 112 125 38 116 105 109 101 115 116 97 109 112 61 123 116 105 109 101 115 116 97 109 112 125 38 100 105 100 61 123 100 105 100 125 26 61 231 153 189 233 135 142 231 140 170 231 136 134 228 186 134 228 184 170 232 163 133 229 164 135 46 230 141 162 228 186 134 229 176 143 229 141 138 228 184 170 230 156 136 229 183 165 232 181 132 229 147 136 229 147 136 229 143 145 228 186 134 34 12 228 188 160 229 165 135 230 151 160 229 143 140 42 134 1 16 228 1 24 150 1 34 30 104 116 116 112 58 47 47 106 114 116 116 46 113 99 119 97 110 119 97 110 46 99 111 109 47 49 46 106 112 103 42 30 104 116 116 112 58 47 47 106 114 116 116 46 113 99 119 97 110 119 97 110 46 99 111 109 47 49 46 106 112 103 42 30 104 116 116 112 58 47 47 106 114 116 116 46 113 99 119 97 110 119 97 110 46 99 111 109 47 50 46 106 112 103 42 30 104 116 116 112 58 47 47 106 114 116 116 46 113 99 119 97 110 119 97 110 46 99 111 109 47 51 46 106 112 103 50 37 10 35 104 116 116 112 58 47 47 109 46 97 110 102 101 110 103 46 99 110 47 99 113 119 115 95 98 98 107 45 105 111 115 47 49 50 47 74 152 1 104 116 116 112 58 47 47 106 114 116 116 46 113 99 119 97 110 119 97 110 46 99 111 109 47 115 104 111 119 47 110 111 116 105 102 121 63 117 115 101 114 95 105 100 61 123 117 115 101 114 95 105 100 125 38 114 101 113 117 101 115 116 95 105 100 61 123 114 101 113 117 101 115 116 95 105 100 125 38 97 100 105 100 61 123 97 100 105 100 125 38 98 105 100 95 112 114 105 99 101 61 123 98 105 100 95 112 114 105 99 101 125 38 105 112 61 123 105 112 125 38 116 105 109 101 115 116 97 109 112 61 123 116 105 109 101 115 116 97 109 112 125 38 100 105 100 61 123 100 105 100 125 82 153 1 104 116 116 112 58 47 47 106 114 116 116 46 113 99 119 97 110 119 97 110 46 99 111 109 47 99 108 105 99 107 47 110 111 116 105 102 121 63 117 115 101 114 95 105 100 61 123 117 115 101 114 95 105 100 125 38 114 101 113 117 101 115 116 95 105 100 61 123 114 101 113 117 101 115 116 95 105 100 125 38 97 100 105 100 61 123 97 100 105 100 125 38 98 105 100 95 112 114 105 99 101 61 123 98 105 100 95 112 114 105 99 101 125 38 105 112 61 123 105 112 125 38 116 105 109 101 115 116 97 109 112 61 123 116 105 109 101 115 116 97 109 112 125 38 100 105 100 61 123 100 105 100 125 58 18 49 49 51 49 51 57 49 54 56 49 55 50 53 48 49 56 49 55].([]byte)
+//import (
+//	"crypto/aes"
+//	"crypto/cipher"
+
+//	"encoding/base64"
+//	"encoding/json"
+//	"fmt"
+//)
+
+//func main() {
+//	var con string = "2z/+yJhomkj5FrrWgQHMoWra/5rQ64mJ66dlXEAtfB8SfJIqHPCfGbS/Cg/JAP3w5jeF/8XU8foc/RidxvN7IMdz7J7IezrTSCAUZLspUHZV1s66I4EBhi90bP3wWEU/4hmhdmIBkMYbsX7KFM+4pO93lXpKB9zvV/hGgVYjepZykfa0BqQbFqnf/Jru"
+
+//	st, _ := base64.StdEncoding.DecodeString(con)
+
+//	var KEY string = "a74e696576394976bc694fbd58a2b0d6"
+//	//dd, _ := AESDecrypt([]byte(KEY), st)
+//	//dda := decrypt([]byte(KEY), st)
+//	//fmt.Println(string(dda))
+//	ddec([]byte(KEY), st)
+
+//}
+
+//type TTdayDat struct {
+//	Date      string  `json:"date"`
+//	Req_cnt   int     `json:"req_cnt"`
+//	Bid_cnt   int     `json:"bid_cnt"`
+//	Win_cnt   int     `json:"win_cnt"`
+//	Show_cnt  int     `json:"show_cnt"`
+//	Click_cnt int     `json:"clik_cnt"`
+//	Cost      float32 `json:"cost"`
+//}
+//type DailyDetail struct {
+//	Date     string `json:"date1"`
+//	Show_cnt int    `json:"show_cnt"`
+//	Clik_cnt int    `json:"click_cnt"`
+//}
+
+////展示当天的数据
+//type DailyStats []DailyDetail
+
+//type Extra struct {
+//	DailyStats DailyStats `json:"daily_stats"`
+//}
+
+//type LocalAdsStats struct {
+//	Show_cnt  int     `json:"show_cnt"`
+//	Click_cnt int     `json:"click_cnt"`
+//	Cost      float32 `json:"cost"`
+//	Extra     Extra   `json:"extra"`
+//}
+
+//type DatStats struct {
+//	Date_stats    []TTdayDat    `json:"date_stats"`
+//	LocalAdsStats LocalAdsStats `json:"local_ads_stats"`
+//}
+
+//func decrypt(key, text []byte) []byte {
+//	block, err := aes.NewCipher(key)
+//	if err != nil {
+//		return nil
+//	}
+//	if len(text) < aes.BlockSize {
+//		return nil
+//	}
+
+//	iv := text[:aes.BlockSize]
+//	text = text[aes.BlockSize:]
+//	cfb := cipher.NewCFBDecrypter(block, iv)
+
+//	cfb.XORKeyStream(text, text)
+
+//	das := &DatStats{}
+//	erp := json.Unmarshal(text, das)
+//	if erp != nil {
+//		fmt.Println("--->", erp)
+//	}
+
+//	return text
+
+//}
+
+//func ddec(key, text []byte) {
+//	c, err := aes.NewCipher(key)
+//	if err != nil {
+//		//fmt.Printf("Error: NewCipher(%d bytes) = %s", len(key_text), err)
+//	}
+//	var commonIV = []byte{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
+//		0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f}
+//	texts := text[aes.BlockSize:]
+
+//	cfbdec := cipher.NewCFBDecrypter(c, commonIV)
+//	plaintextCopy := make([]byte, len(text))
+//	cfbdec.XORKeyStream(plaintextCopy, texts)
+
+//	das := &DatStats{}
+//	erp := json.Unmarshal(texts, das)
+//	if erp != nil {
+//		fmt.Println("--->", erp)
+//	}
+
+//	fmt.Println(string(texts))
+
+//	fmt.Printf("%x=>%s\n", texts, plaintextCopy)
+//}
+
+package main
+
+import (
+	"crypto/aes"
+	"crypto/cipher"
+	"encoding/base64"
+	"fmt"
+	"os"
+)
+
+var commonIV = []byte{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
+	0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f}
+
+func main() {
+	//需要去加密的字符串
+	//plaintext := []byte("My name is Astaxie")
+	var con string = "2z/+yJhomkj5FrrWgQHMoWra/5rQ64mJ66dlXEAtfB8SfJIqHPCfGbS/Cg/JAP3w5jeF/8XU8foc/RidxvN7IMdz7J7IezrTSCAUZLspUHZV1s66I4EBhi90bP3wWEU/4hmhdmIBkMYbsX7KFM+4pO93lXpKB9zvV/hGgVYjepZykfa0BqQbFqnf/Jru"
+	plaintext, _ := base64.StdEncoding.DecodeString(con)
+	//如果传入加密串的话，plaint 就是传入的字符串
+	if len(os.Args) > 1 {
+		plaintext = []byte(os.Args[1])
+	}
+	//aes 的加密字符串
+	key_text := "a74e696576394976bc694fbd58a2b0d6"
+	if len(os.Args) > 2 {
+		key_text = os.Args[2]
+	}
+	fmt.Println(len(key_text))
+	// 创建加密算法 aes
+	c, err := aes.NewCipher([]byte(key_text))
+	if err != nil {
+		//fmt.Printf("Error: NewCipher(%d bytes) = %s", len(key_text), err)os.Exit(-1)
+	}
+	//加密字符串
+	cfb := cipher.NewCFBEncrypter(c, commonIV)
+	ciphertext := make([]byte, len(plaintext))
+	cfb.XORKeyStream(ciphertext, plaintext)
+	fmt.Printf("%s=>%x\n", plaintext, ciphertext)
+	// 解密字符串
+	cfbdec := cipher.NewCFBDecrypter(c, commonIV)
+	plaintextCopy := make([]byte, len(plaintext))
+	cfbdec.XORKeyStream(plaintextCopy, ciphertext)
+	fmt.Printf("%x=>%s\n", ciphertext, plaintextCopy)
+}
