@@ -1,0 +1,18 @@
+package main
+
+import (
+	"fmt"
+)
+
+type KeyVal struct {
+	Name  string
+	Score int
+}
+
+func main() {
+	arr := make(map[string]*KeyVal)
+	arr["11"] = &KeyVal{Name: "fdu", Score: 23}
+	arr["11"].Name = "哈哈哈"
+	fmt.Println(*arr["11"])
+}
+#感觉是取值的时候，只是取的一个备份 复合类型不能直接修改元数据
