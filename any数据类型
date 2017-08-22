@@ -109,5 +109,12 @@ func maopao() {
 	fmt.Println(mk)
 }
 
+#
+any 类型的断言 是结合switch 的方式
 
-
+	
+var n interface{} = 1 //只有当前的类型为interface{} 的时候才会
+switch n.(type) {
+case int:
+	fmt.Println("世界这么大")
+}
