@@ -28,3 +28,40 @@ func main() {
 	gg.show()
 
 }
+
+//类的继承和对象的初始化
+
+
+package main
+
+import (
+	"fmt"
+)
+
+type Base struct {
+	Name string
+}
+
+func (self *Base) age() {
+	fmt.Println(self.Name, "This is Base function")
+}
+
+//创建子类
+
+type Son struct {
+	Base
+	Age string
+}
+
+func (self *Son) age() {
+	fmt.Println("This is son function")
+}
+
+func main() {
+	hh := Son{Age: "23", Base: Base{Name: "fj"}}
+	hh.Base.age()
+	hh.age()
+	fmt.Println(hh.Name)
+}
+
+
