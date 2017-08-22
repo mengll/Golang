@@ -1,0 +1,19 @@
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	aValue := new(int)
+	defer fmt.Println(*aValue)
+	for i := 0; i < 100; i++ {
+		*aValue++
+		fmt.Println(*aValue)
+	}
+
+	defer fmt.Println(*aValue)
+}
+
+
+go defer 里面的值是defer 在哪，里面的值就会从什么地方那个，获取当前的数据
