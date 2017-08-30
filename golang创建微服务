@@ -1,0 +1,31 @@
+package main
+
+import (
+	"fmt"
+	"net/http"
+
+	"time"
+)
+
+var routers []string
+
+type customRouter struct {
+}
+
+func (customRouter) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+	fmt.Println(r.URL.Path) //自定义控制句柄
+	fmt.Println(routers)
+	//创建并发的请求
+}
+
+func main() {
+	var cr customRouter
+	server := &http.Server{
+		Addr:           ":9090",
+		Handler:        cr,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+	server.ListenAndServe()
+}
