@@ -1,0 +1,16 @@
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	aValue := new(int)
+	*aValue = 1
+	defer fmt.Println(*aValue) //go 中的defer 中的值，是最初给定的值不会吗随着当前地址的数据的变化而变化
+	for i := 0; i < 100; i++ {
+		*aValue++
+	}
+
+	fmt.Println(*aValue)
+}
