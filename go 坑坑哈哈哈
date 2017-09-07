@@ -14,3 +14,17 @@ func main() {
 
 	fmt.Println(*aValue)
 }
+
+
+
+2） go range 传值的方式 ，range的内容只获取一次
+
+	jk := []int{12, 334, 45}
+	for k, v := range jk {
+		jk = append(jk, v+1)
+		fmt.Println(k, v)
+	}
+	
+//0 12
+//1 334
+//2 45
