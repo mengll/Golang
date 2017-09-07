@@ -65,3 +65,61 @@ func main() {
 }
 
 
+
+//复习
+
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+//life time
+func lifeTime() {
+	select {
+	case <-time.After(time.Second * 3):
+		fmt.Println("This func ") //this is over the time limit
+	}
+}
+
+//create the controller interface
+
+type Ginterface interface {
+	show()
+	kill()
+}
+
+type Game struct {
+	Name string
+	Age  string
+}
+
+var KK Ginterface
+
+func (slef *Game) show() {
+	fmt.Println("This is show func ")
+}
+
+func (self *Game) kill() {
+	fmt.Println("This is kill func ")
+}
+
+func (self *Game) pl() {
+	fmt.Println("Thsi si funck")
+}
+
+func main() {
+
+	jk := &Game{Name: "fj", Age: "23"}
+	KK = jk
+
+	jk.show()
+
+	fmt.Println("This is Go func ")
+	lifeTime()
+}
+
+//time Timeout function
+
+
