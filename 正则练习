@@ -1,0 +1,9 @@
+1）go语言中的贪婪匹配  匹配越少越好
+
+	baseurl := "238sns82673k382902j"
+	reg, _ := regexp.Compile(`\d{3,}?`)
+	pl := reg.FindAllString(baseurl, -1)
+	fmt.Println(pl)
+  [238 826 382 902]
+ 
+ 
