@@ -28,3 +28,31 @@ func main() {
 //0 12
 //1 334
 //2 45
+
+
+3) go 中的select的值能随机 带来数据的不确定性
+package main
+
+import (
+	"fmt"
+	"runtime"
+)
+
+func main() {
+	runtime.GOMAXPROCS(1)
+	int_chan := make(chan int, 1)
+	string_chan := make(chan string, 1)
+	int_chan <- 1
+	string_chan <- "222"
+	select {
+	case value := <-int_chan:
+		fmt.Println(value)
+	case value := <-string_chan:
+		fmt.Println("string func a", value)
+	}
+}
+
+//select is random  you dot't khown which one is frist run
+
+
+
