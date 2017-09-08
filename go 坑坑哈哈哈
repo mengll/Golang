@@ -52,7 +52,7 @@ func main() {
 	}
 }
 
-//select is random  you dot't khown which one is frist run
+//select is random  you dot't know of which one is first run
 
 
 
