@@ -1,0 +1,10 @@
+1）修改环境变量
+ 访问~/.bashrc 文件修改
+  export GOPATH=/go
+  export GOROOT=/USR/LOCAL/GO
+  
+  export PATH=$PATH:$GOROOT
+  
+  2)重新加载文件
+  
+  source ~/.bashrc
