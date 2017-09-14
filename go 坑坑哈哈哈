@@ -54,5 +54,29 @@ func main() {
 
 //select is random  you dot't know of which one is first run
 
+4)golang 中的赋值操作 都会拷贝一份 及深拷贝
 
+	m := make(map[string]int)
+	m["kl"] = 9
+	m["pl"] = 10
+	fmt.Println("map:", m)
+
+	//delete one key
+
+	delete(m, "kl")
+
+	fmt.Println("map delete one key", m)
+	c := m
+
+	fmt.Println(&m == &c) //daochu dangqiande duixaing
+	fmt.Println(&c)
+
+	j := 1
+	k := 1
+
+	fmt.Println(&j == &k) //The value of data is not the
+	
+	
+	
+	
 
