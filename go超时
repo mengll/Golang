@@ -1,0 +1,83 @@
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	intChan := make(chan int, 1)
+	go func() {
+		for i := 0; i < 5; i++ {
+			time.Sleep(time.Second)
+			intChan <- i
+		}
+
+		close(intChan)
+	}()
+
+	timeout := time.Millisecond * 500
+	var timer *time.Timer
+
+	for {
+		if timer == nil {
+
+			timer = time.NewTimer(timeout)
+		} else {
+			timer.Reset(timeout)
+		}
+
+		select {
+		case e, ok := <-intChan:
+			if !ok {
+				fmt.Println("End")
+				return
+			}
+			fmt.Printf("Revice %v\n", e)
+		case <-timer.C:
+			fmt.Println("Timeout ")
+		}
+
+	}
+}
+
+
+
+
+
+#2）实现setintavl
+
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	intChan := make(chan int, 1)
+	ticker := time.NewTicker(time.Second)
+	
+	go func() {
+		for _ = range ticker.C {
+			select {
+			case intChan <- 1:
+			case intChan <- 2:
+			case intChan <- 3:
+			}
+		}
+		fmt.Println("END.[sender]")
+	}()
+
+	var sum int
+	for e := range intChan {
+		sum += e
+		if sum > 10 {
+			fmt.Printf("%v\n", sum)
+			break
+		}
+	}
+	fmt.Println("end [receiver]")
+}
+
+
