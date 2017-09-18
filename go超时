@@ -80,4 +80,39 @@ func main() {
 	fmt.Println("end [receiver]")
 }
 
+3)) Channel 新的用法
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+
+	kl := make(chan int, 0)
+
+	go func() {
+
+		for ok := range kl {
+			fmt.Println("kill", ok)
+		}
+
+	}()
+
+	for i := 0; i < 5; i++ {
+		fmt.Println("i=", i)
+		kl <- i
+	}
+	time.Sleep(time.Second)
+
+	for j := 0; j < 5; j++ {
+		fmt.Println("j=", j)
+		kl <- j
+	}
+
+	time.Sleep(time.Second)
+
+}
+
 
