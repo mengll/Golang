@@ -75,8 +75,26 @@ func main() {
 	k := 1
 
 	fmt.Println(&j == &k) //The value of data is not the
+
+5）传值 和传递引用
+	func inflate(numbers [9]int, factor int) {
+		for i := range numbers {
+			numbers[i] *= factor
+		}
+	}
 	
 	
-	
+	grades := [9]int{87, 55, 43, 71, 60, 43, 32, 19, 63}
+	inflate(grades, 3)
+	fmt.Println(grades)
+
+	for ij := range grades {
+		grades[ij] *= 2
+	}
+	fmt.Println(grades)
+	echo //扩展数组在方法传递 的是复制了一份。  []int 是切片传递给方法的时候传递的是引用
+	[87 55 43 71 60 43 32 19 63]
+	[174 110 86 142 120 86 64 38 126]
+
 	
 
