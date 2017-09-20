@@ -1,0 +1,16 @@
+1) amounts := []float64{24.1,23.23}
+for _,amount := range amounts {
+
+}
+
+for ... range 循环首先，初始化一个从0开始的循环计数器，然后是从切片中复制对应的，元素 这就意味着任何作用与，该项 的修改都是作用于副本
+
+2）需要修改切片中的数据
+
+for i := range amount{
+   amounts[i] *=1.5
+   
+   sum += amounts[i]
+}
+
+//修改当前的引用
