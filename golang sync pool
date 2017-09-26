@@ -1,0 +1,38 @@
+package main
+
+import (
+	"fmt"
+	"runtime"
+	"sync"
+)
+
+type Gameone struct {
+	name  string
+	level string
+}
+
+func main() {
+
+	p := &sync.Pool{
+		New: func() interface{} {
+			return 0
+		},
+	}
+
+	s := &Gameone{name: "danao", level: "fa"}
+	sdw := &Gameone{name: "kdsksd", level: "2"}
+	p.Put(sdw)
+	p.Put(s)
+	p.Put(1)
+	p.Put(2)
+
+	d := p.Get()
+	fmt.Println(d)
+	sd := p.Get()
+	fmt.Println(sd)
+	sds := p.Get()
+	fmt.Println(sds)
+	fmt.Println(p.Get())
+	runtime.GC()
+
+}
