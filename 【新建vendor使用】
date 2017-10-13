@@ -1,0 +1,8 @@
+1)安装vendeor
+    go get -u -v github.com/kardianos/govendor
+2)到相关的目录下执行
+    govendor init
+3)添加相关的包    
+    govendor add github.com/streadway/amqp
+    govendor install gopkg.in/mgo.v2/bson
+    //的方式添加，相关的执行的包
