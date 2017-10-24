@@ -52,7 +52,23 @@ func HttpGet(url string) string {
 	 b *testing.B 是压力测试 需要一Benchmark开头
 	 func BenchmarkGUID(b *testing.B) 执行相关的，单元压力测试的方法
 
+	package main
 
+	import (
+		"fmt"
+		"testing"
+	)
+
+	func TestMain(t *testing.T) {
+		fmt.Println("This is main function")
+		main()
+		fmt.Println("This end")
+	}
+
+	//bingfa ceshi
+	func BenchmarkMain(b *testing.B) {
+		main()
+	}
 
 
 
