@@ -1,0 +1,102 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"time"
+)
+
+func mainOne() {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	go func(ctx context.Context) {
+		for {
+			select {
+			case <-ctx.Done():
+				err := ctx.Err()
+				fmt.Println(err)
+				return
+			default:
+				fmt.Println("This is no context in this page!")
+				time.Sleep(2 * time.Second) //yanchi
+			}
+		}
+	}(ctx)
+
+	time.Sleep(4 * time.Second) //zhu dong de qu diao yong quxiao hanshu
+	cancel()
+	fmt.Println("123")
+}
+
+func mainTwo() {
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*3)
+	// back a cancel func you run it right now
+
+	go func(ctx context.Context) {
+
+		for {
+			select {
+			case <-ctx.Done():
+				fmt.Println("Time is out you controller")
+				return
+			default:
+				fmt.Println("now content")
+				time.Sleep(1 * time.Second)
+			}
+		}
+
+	}(ctx)
+
+	time.Sleep(5 * time.Second)
+
+}
+
+func mainThree() {
+	//run the context as yo can do it by yourself that
+	ctx, _ := context.WithDeadline(context.Background(), time.Now().Add(time.Second*5))
+
+	go func(ctx context.Context) {
+		for {
+
+			select {
+			case <-ctx.Done():
+				fmt.Println("This is end ")
+				return
+			default:
+				fmt.Println("The context is so you can do page !")
+				time.Sleep(time.Second * 1)
+			}
+
+		}
+	}(ctx)
+	time.Sleep(10 * time.Second)
+
+}
+
+//run with content
+
+func main() {
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
+	bk := context.WithValue(ctx, "mengll", "22")
+
+	go func(ctx context.Context) {
+		for {
+			select {
+			case <-ctx.Done():
+				tm, isa := ctx.Deadline()
+				fmt.Println(tm.Format("%Y"))
+				fmt.Println(isa)
+				va := ctx.Value("mengll")
+				fmt.Println(va)
+
+				return
+			default:
+				fmt.Println("The conte")
+				time.Sleep(1 * time.Second)
+			}
+
+		}
+	}(bk)
+
+	time.Sleep(10 * time.Second)
+}
