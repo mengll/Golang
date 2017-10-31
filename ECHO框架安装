@@ -1,3 +1,7 @@
 1)go trace  linux 可视化视图安装  
 yum list available 'graphviz*'
 yum install 'graphviz*'
+
+2)下载相关的gotools 到相关的目录，想改相关的路径的名称
+
+3） 使用go build 的方式安装 go build github.com/divan/gotrace
