@@ -5,3 +5,39 @@ yum install 'graphviz*'
 2)下载相关的gotools 到相关的目录，想改相关的路径的名称
 
 3） 使用go build 的方式安装 go build github.com/divan/gotrace
+
+
+附录 A - Go 本地补丁
+
+如果你真的想使用getrace，你可能想自己来运行Go补丁。 可以让你运行getrace时就像gotrace main.go一样简单，没有上述中的任何中间步骤。
+
+这里将介绍是如果做到的 (MacOS X 和Linux).
+
+假如你的 Go 安装在 /usr/local/go (默认), 下载Go 1.6.3 版本并解压到/usr/local/go163.
+
+sudo -i
+mkdir -p /usr/local/go163
+curl https://storage.googleapis.com/golang/go1.6.3.src.tar.gz | tar -xz -C /usr/local/go163
+然后，复制补丁并应用：
+
+sudo patch -p1 -d /usr/local/go163/go < runtime/go1.6.3-tracenew.patch
+构建新的运行
+
+sudo -i
+cd /usr/local/go163/go/src
+export GOROOT_BOOTSTRAP=/usr/local/go # or choose yours
+./make.bash
+最后，导出PATH或使用ln -s命令来确保这个版本的Go确实已经安装到你的系统中：
+
+export PATH=/usr/local/go163/go/bin:$PATH
+或者 (假设你的PATH设置为 /usr/local/go)
+
+sudo mv /usr/local/go /usr/local/go-orig
+sudo ln -nsf /usr/local/go163/go /usr/local/go
+第 10 段（可获 2 积分）
+0
+tony
+10个月前
+注意：通过sudo ln -nsf /usr/local/go-orig /usr/local/go 返回以前的安装
+
+现在，你可以运行gotrace main.go命令并获得结果。
