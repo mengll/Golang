@@ -71,5 +71,6 @@ func HttpGet(url string) string {
 	}
 
 
-
+------------------------------------------yunxing 
+go test -bench='.'
 
