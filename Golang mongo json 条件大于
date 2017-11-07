@@ -1,0 +1,114 @@
+package main
+
+import (
+	"ana/syncdata/models"
+	"fmt"
+
+	"gopkg.in/mgo.v2/bson"
+
+)
+
+func SyncMongo() {
+	mgo := models.NewDataStore()
+	//mgo.C("logs").Find().All()
+	//defer mgo.Close() //关闭当前的链
+
+	models.Check_connect()
+	defer models.Mysql_colose() //关闭当前的数据库
+
+	//获取当前的数据总数
+	totals, err := models.Mysql_db.Query("select  count(*) as total from ucuser_login_log  ")
+
+	if err != nil {
+		fmt.Print("count error")
+	}
+
+	for totals.Next(){
+		var total int
+		totals.Scan(&total)
+
+		pagesize := 1000
+
+		pages := total / pagesize +1
+
+		fmt.Print(total,pages)
+
+		for page:=0;page<pages;page++{
+			sql := fmt.Sprintf("select  ip,imei,ts from ucuser_login_log  limit %d,%d",page * pagesize,pagesize)
+			rows, err := models.Mysql_db.Query(sql)
+			if err != nil {
+				fmt.Print("This error")
+			}
+
+			columns, _ := rows.Columns()
+			scanArgs := make([]interface{}, len(columns))
+			values := make([]interface{}, len(columns))
+			for i := range values {
+				scanArgs[i] = &values[i]
+			}
+
+			for rows.Next() {
+				//将行数据保存到record字典
+				err = rows.Scan(scanArgs...)
+				record := make(map[string]string)
+				for i, col := range values {
+					if col != nil {
+						record[columns[i]] = string(col.([]byte))
+					}
+				}
+
+				//获取当前的额imei
+				imei := record["imei"]
+
+				var mgodat struct{
+					Info map[string]interface{} `bson:"info"`
+				}
+
+				rr := mgo.C("device_info_log").Find(bson.M{"imei":imei}).One(&mgodat)
+				if rr != nil{
+					fmt.Print(rr)
+				}
+
+				if mgodat.Info["brand"] != nil {
+					record["brand"] = interface{}(mgodat.Info["brand"]).(string)
+				}
+
+				//应用数据
+				var device struct{
+					Apps map[string]interface{} `bson:"apps"`
+					//Apps map[string]interface{} `bson:"apps"`
+				}
+				//查询当前内容数量大于2
+				//d :=mgo.C("device_apps_log").Find(bson.M{"_": bson.JavaScript{`"$where": "this.apps.add.length > 2"`, bson.M{"_": nil}},"imei":imei}).One(&device)
+				d :=mgo.C("device_apps_log").Find(bson.M{"imei":imei,"$where":"this.apps.add.length > 2"}).One(&device)
+
+				if d != nil{
+					fmt.Print(d)
+				}
+
+				fmt.Print(device)
+
+
+
+			}
+
+			if page >1 {
+				break
+			}
+
+		}
+
+	}
+
+
+}
+
+type Ucuser_login_log struct {
+	Id   int64
+	Imei string
+}
+
+func main() {
+	SyncMongo()
+	//models.Pgconnect()
+}
