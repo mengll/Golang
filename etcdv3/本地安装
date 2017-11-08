@@ -1,0 +1,48 @@
+###安装
+安装步骤：
+wget https://github.com/coreos/etcd/releases/download/v3.0.6/etcd-v3.0.6-linux-amd64.tar.gz
+tar -xvf etcd-v3.0.6-linux-amd64.tar.gz
+cd etcd-v3.0.6-linux-amd64
+直接运行命令 ./etcd 就可以启动服务端了，非常简单：
+默认使用2379端口为客户端提供通讯， 并使用端口2380来进行服务器间通讯。
+查看当前安装的版本：
+
+[root@node01 etcd-v3.0.6-linux-amd64]# ./etcd --version  
+etcd Version: 3.0.6  
+Git SHA: 9efa00d  
+Go Version: go1.6.3  
+Go OS/Arch: linux/amd64  
+
+客户端访问
+配置etcdctl
+etcdctl 是 etcd 的客户端命令行。
+特别提醒：使用前，务必设置环境变量 ETCDCTL_API=3
+在 /etc/profile 中加入以下内容：
+export ETCDCTL_API=3
+
+[root@node01 etcd-v3.0.6-linux-amd64]# ./etcdctl version  
+etcdctl version: 3.0.6  
+API version: 3.0  
+
+注意：如果不设置 ETCDCTL_API=3，则默认是的API版本是2：
+
+通过下面的put和get命令来验证连接并操作etcd：
+
+[root@node01 etcd-v3.0.6-linux-amd64]# ./etcdctl put name zhangsan  
+OK  
+[root@node01 etcd-v3.0.6-linux-amd64]# ./etcdctl get name  
+name  
+zhangsan  
+[root@node01 etcd-v3.0.6-linux-amd64]# ./etcdctl del name  
+1  
+
+修改etcd server的端口和绑定host
+./etcd -listen-client-urls http://192.168.1.100:2379 --advertise-client-urls http://192.168.1.100:2380  
+
+绑定所有的host
+./etcd -listen-client-urls http://0.0.0.0:2379 --advertise-client-urls http://0.0.0.0:2380  
+
+-listen-client-urls 用于指定etcd和客户端的连接端口，
+-advertise-client-urls 用于指定etcd服务器之间通讯的端口，etcd有要求，如果-listen-client-urls被设置了，那么就必须同时设置-advertise-client-urls，所以即使设置和默认相同，也必须显式设置。
+
+./etcdctl --endpoints=192.168.1.100:2380 get name  
