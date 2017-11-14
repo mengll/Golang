@@ -17,3 +17,5 @@ go get -u github.com/golang/protobuf/protoc-gen-go
 7.下载protoc.exe，proto生成.go文件的工具 https://github.com/google/protobuf/releases
 
 8 protoc ./test.proto --go_out=./ 编译当前的文档的
+9 编译生成当前的文件
+protoc -I . --go_out=plugins=grpc:. ./hello.proto
