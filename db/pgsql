@@ -1,0 +1,109 @@
+package models
+//当前处理pgsql的处理合集
+import (
+	"database/sql"
+	"fmt"
+	_ "github.com/lib/pq"
+	"context"
+)
+
+const (
+	host     = "192.168.1.59"
+	port     = 5432
+	user     = "postgres"
+	password = "123456"
+	dbname   = "postgres"
+)
+
+type Pg struct {
+	Db *sql.DB
+	Pgstmt *sql.Stmt
+	PgTx *sql.Tx
+}
+
+//pgconnect 处理当前的数据库路链接
+
+func (self *Pg) PgConnect(){
+	var err error
+
+	defer func() {
+		if err := recover(); err!=nil {
+			fmt.Println("pg connect error",err)
+		}
+	}()
+
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	self.Db , err = sql.Open("postgres", psqlInfo)
+	if err != nil {
+		fmt.Print("pg connect err")
+	}
+
+	erra := self.Db.Ping()
+	if erra != nil {
+		panic(erra)
+	}
+
+}
+
+//关闭当前链接
+func (self *Pg)Pgclose(){
+	self.Db.Close()
+}
+
+//预处理当前的信息
+func (self *Pg)PrepareContext(ctx context.Context,query string){
+	self.Pgstmt,_ = self.Db.PrepareContext(ctx,query)
+}
+
+//创建预处理语句  Prepare("insert into user(name, sex)values($1,$2)")
+func (self *Pg)Prepure(str string){
+
+	  var err error
+	  self.Pgstmt, err	= self.Db.Prepare(str)
+
+      if err != nil{
+      	panic("query prepure error")
+	  }
+}
+
+//执行当前预处理的语句
+func (self *Pg)Exec(args ...interface{}){
+	defer func() {
+		if err := recover();err != nil{
+			self.Pgstmt.Close() //关闭当前的链接
+		}
+	}()
+	rs, err := self.Pgstmt.Exec(args)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	//可以获得影响行数
+	affect, err := rs.RowsAffected()
+	fmt.Println(affect) //当前影响的行数
+}
+
+//开启事务处理
+func (self *Pg)Begin(){
+	var err error
+	self.PgTx ,err = self.Db.Begin()
+	if err != nil{
+		panic(err)
+	}
+}
+
+//事务的回滚
+func (self *Pg)Rollback(){
+	self.PgTx.Rollback()
+}
+
+//提交
+func (self *Pg)Commit(){
+	self.PgTx.Commit()
+}
+
+//关闭presql
+
+func (self *Pg)PrClose(){
+	self.Pgstmt.Close()  //关闭当前的预处理语句
+}
