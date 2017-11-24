@@ -5,14 +5,7 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	"context"
-)
-
-const (
-	host     = "192.168.1.59"
-	port     = 5432
-	user     = "postgres"
-	password = "123456"
-	dbname   = "postgres"
+	"strconv"
 )
 
 type Pg struct {
@@ -24,23 +17,28 @@ type Pg struct {
 //pgconnect 处理当前的数据库路链接
 
 func (self *Pg) PgConnect(){
-	var err error
-
 	defer func() {
-		if err := recover(); err!=nil {
+		if err :=recover();err !=nil{
 			fmt.Println("pg connect error",err)
 		}
 	}()
 
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	self.Db , err = sql.Open("postgres", psqlInfo)
-	if err != nil {
-		fmt.Print("pg connect err")
+	var err error
+	port,era := strconv.Atoi(PgConf.Port)
+
+	if era != nil{
+		fmt.Println("端口转化错误")
 	}
 
-	erra := self.Db.Ping()
-	if erra != nil {
-		panic(erra)
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", PgConf.Host, port , PgConf.User, PgConf.PassWord, PgConf.DataBase)
+
+	fmt.Println("======\n")
+	fmt.Println(psqlInfo)
+	fmt.Println("-----\n")
+	self.Db , err = sql.Open("postgres", psqlInfo)
+
+	if err != nil {
+		fmt.Print("pg connect err")
 	}
 
 }
