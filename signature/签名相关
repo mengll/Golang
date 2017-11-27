@@ -1,0 +1,115 @@
+package customers
+
+import (
+	"crypto/hmac"
+	"crypto/sha1"
+	"encoding/hex"
+	"encoding/base64"
+	"bytes"
+
+	"net/url"
+	"fmt"
+	"crypto/md5"
+	"strings"
+	"time"
+	"strconv"
+)
+
+//今日头条生成签名
+func TodaySign(url,key string) string{
+
+	hc := hmac.New(sha1.New,[]byte(key)) //使用签名的方式和签名使用的key值
+	hc.Write([]byte(url))
+	v := hc.Sum(nil)
+	sign := hex.EncodeToString(v)
+	sign = base64.URLEncoding.EncodeToString([]byte(sign))
+
+	for {
+		if len(sign)%4 == 0 {
+			break
+		}
+		sign += "="
+	}
+
+	return url+"&signature="+sign //返回生成签名好的访问地址
+}
+
+//广点通访问控制 合并
+
+func BytesCombine(pBytes ...[]byte) []byte {
+	len := len(pBytes)
+	s := make([][]byte, len)
+	for index := 0; index < len; index++ {
+		s[index] = pBytes[index]
+	}
+	sep := []byte("")
+	return bytes.Join(s, sep)
+}
+
+//简单异或操作
+func SimpleorX(info,key []byte) string{
+	if len(info) ==0 || len(key) == 0{
+		return ""
+	}
+	var back []byte
+	k_len := len(key)
+	d_len := len(info)
+
+	for i := 0;i < d_len;i++{
+		key_len := i % k_len
+		back = append(back,info[i] ^ key[key_len])
+	}
+
+	return  base64.URLEncoding.EncodeToString(back)
+}
+
+
+//创建广点通的上报地址
+func Gdtbkurl(appid,encrypt_key,sign_key,uid,conv_type,app_type,click_id,muid string) string {
+	conv_time := time.Now().Unix()
+	ntime := strconv.FormatInt(conv_time,10)
+
+	bk_url := "http://t.gdt.qq.com/conv/app/"+appid+"/conv?"
+	//拼接请求请求参数
+	query_str := "click_id="+Urlencode(click_id)+"&muid="+Urlencode(muid)+"&conv_time="+Urlencode(ntime)
+	fmt.Println(query_str)
+	encode_page := Urlencode(bk_url + query_str)
+	//property
+	property := sign_key+"&GET&"+encode_page
+	//md5加密
+	signature := M5(property)
+	//base data
+	base_data := query_str +"&sign="+Urlencode(signature)
+	//对数据进行简单异或
+	data := Urlencode(SimpleorX([]byte(base_data),[]byte(encrypt_key)))
+	//组装原始数据
+	attachment := "conv_type="+Urlencode(conv_type)+"&app_type="+Urlencode(app_type)+"&advertiser_id="+Urlencode(uid)
+	//最终url
+	lastUrl := bk_url +"v="+data+"&"+attachment
+	return lastUrl
+}
+
+
+//urlu转码操作
+func Urlencode(str string) string{
+	return url.PathEscape(str)
+
+}
+
+//urldecode反码
+func Urldecode(str string) string{
+	vk,errp := url.PathUnescape(str)
+	if errp != nil{
+		fmt.Println("转化错误",errp)
+	}
+	return vk
+}
+
+//md5 32 小写
+
+func M5(str string) string{
+	md5 := md5.New()
+	md5.Write([]byte(str))
+	mds := hex.EncodeToString(md5.Sum(nil)) // 转
+	return strings.ToLower(mds)
+}
