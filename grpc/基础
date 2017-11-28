@@ -31,5 +31,6 @@ protoc -I . --go_out=plugins=grpc,Mfoo/bar.proto=bar,import_prefix=foo/,import_p
 
 创建相关的服务的操作
 
-
+window 命令
+ protoc.exe .\adt.proto -I . --go_out=plugins=grpc:./
 
