@@ -74,3 +74,6 @@ func HttpGet(url string) string {
 ------------------------------------------yunxing 
 go test -bench='.'
 
+--------------基准测试函数
+go test -v -run="none" -bench="BenchmarkSprintf"  -run=none 表示保证当前的测试，没有其它正在测试的程序
+ 
