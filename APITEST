@@ -79,5 +79,5 @@ go test -v -run="none" -bench="BenchmarkSprintf"  -run=none 表示保证当前�
  
 go test -v -run="none" -bench="BenchmarkSprintf" -benchtime="3s" -run=none 当前的测试持续3秒
 
-
+run 选项指定了特定的函数 ，执行可接受正则表达式
 
