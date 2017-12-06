@@ -261,3 +261,52 @@ c.Remove(bson.M{"name": "Jimmy Kuu"})
 注解
 
 这里也支持多条件，参考多条件查询。
+
+#golang中的时间转化成MongoDB的时间
+package main
+
+import (
+"ana/models"
+"fmt"
+"math"
+"gopkg.in/mgo.v2/bson"
+"time"
+)
+
+const (
+	PAGE_SIZE int = 1000
+	f_datetime = "2006-01-02 15:04" //输出的时间格式
+)
+
+type Model struct {
+	Created_at time.Time     `bson:"time"`
+}
+
+//将UTC时间增加8小时为东部时间
+func TimeUtcToCst(t time.Time) time.Time {
+	return t.Add(time.Hour * time.Duration(8))
+}
+
+//将str转换为时间格式
+func StrToTime(st string) time.Time {
+	t, _ := time.ParseInLocation(f_datetime, st, time.Local)
+	return t
+}
+
+//从MongoDB中获取数据同步同步到当前的数据库中
+func main(){
+	postdate := StrToTime("2017-09-11 00:00:00")
+	mgo := models.NewDataStore()
+	d ,err:= mgo.C("device_info_log").Find(bson.M{"created_at":bson.M{"$gt":postdate}}).Count()
+	if err != nil{
+		fmt.Println("获取设备信息出错误了")
+	}
+
+	pages := math.Ceil( float64(d) /1000) //回去回去当前的
+	fmt.Println(pages)
+
+}
+
+
+
+
