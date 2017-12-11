@@ -1,0 +1,131 @@
+// InitPackage project InitPackage.go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+
+	"bufio"
+	"io"
+	"io/ioutil"
+	"net/url"
+	"os"
+	"path/filepath"
+	"strings"
+)
+
+//数据格式转化的操作
+
+func DataChange(data string) map[string]interface{} {
+	var dat map[string]interface{}
+	json.Unmarshal([]byte(data), &dat)
+	return dat
+}
+
+// 结构转换成json对象
+func JsonEncodeString(data interface{}) string {
+	back, err := json.Marshal(data)
+	if err != nil {
+		return "encode error"
+	}
+	return string(back)
+}
+
+//map的类型转换成！
+
+func MaptoJson(data map[string]interface{}) string {
+	configJSON, err := json.MarshalIndent(data, "", "\t")
+	if err != nil {
+		return ""
+	}
+	return string(configJSON) //返回格式化后的字符串的内容0
+}
+
+/*
+获取程序运行路径
+*/
+func getCurrentDirectory() string {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		fmt.Println("This is an error")
+	}
+	return strings.Replace(dir, "\\", "/", -1)
+}
+
+func readfile(path string) string {
+	fi, err := os.Open(path)
+	if err != nil {
+		panic(err)
+	}
+	defer fi.Close()
+	fd, err := ioutil.ReadAll(fi)
+	return string(fd)
+}
+
+func ReadLine(fileName string, handler func(string)) error {
+	f, err := os.Open(fileName)
+	if err != nil {
+		return err
+	}
+	buf := bufio.NewReader(f)
+	for {
+		line, err := buf.ReadString('\n')
+		line = strings.TrimSpace(line)
+		handler(line)
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return err
+		}
+	}
+	return nil
+}
+
+func Datc(st string) {
+	p := DataChange(st)
+	urlsa, err := url.Parse(interface{}(p["request"]).(string))
+	if err != nil {
+		fmt.Println("123")
+	}
+	fmt.Println(urlsa.Query().Get("ci"))
+}
+
+//run path log
+func parselog(patha string) {
+	files, err := ioutil.ReadDir(patha)
+	if err != nil {
+		fmt.Println("This error is ", nil)
+		panic("parse error")
+	}
+
+	for num, v := range files {
+		fmt.Println("now run file ", num, "\n")
+		path_name := v.Name()
+
+		paths := patha + "/" + path_name
+
+		if v.IsDir() == true {
+			parselog(paths)
+
+		} else {
+			fmt.Println(paths)
+			ReadLine(paths, Datc)
+		}
+
+	}
+}
+
+func main() {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("数据库初始化")
+			return
+		}
+	}()
+	path := getCurrentDirectory()
+
+	//获取当前文件的配置
+	paths := path + "/logs"
+	parselog(paths)
+}
