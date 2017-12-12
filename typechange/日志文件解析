@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 //数据格式转化的操作
@@ -62,33 +63,39 @@ func readfile(path string) string {
 	return string(fd)
 }
 
-func ReadLine(fileName string, handler func(string)) error {
+func ReadLine(sy *sync.WaitGroup, fileName string, handler func(string)) {
 	f, err := os.Open(fileName)
 	if err != nil {
-		return err
+		fmt.Println("error error!")
 	}
 	buf := bufio.NewReader(f)
+
 	for {
 		line, err := buf.ReadString('\n')
 		line = strings.TrimSpace(line)
 		handler(line)
 		if err != nil {
 			if err == io.EOF {
-				return nil
+				fmt.Println("This had complete")
+				break
 			}
-			return err
 		}
 	}
-	return nil
+
+	sy.Done()
 }
 
 func Datc(st string) {
 	p := DataChange(st)
-	urlsa, err := url.Parse(interface{}(p["request"]).(string))
-	if err != nil {
-		fmt.Println("123")
+	acontent, isexists := p["request"]
+	if isexists {
+		urlsa, err := url.Parse(interface{}(acontent).(string))
+		if err != nil {
+			fmt.Println("123")
+		}
+		fmt.Println(urlsa.Query().Get("ci"))
 	}
-	fmt.Println(urlsa.Query().Get("ci"))
+
 }
 
 //run path log
@@ -98,21 +105,19 @@ func parselog(patha string) {
 		fmt.Println("This error is ", nil)
 		panic("parse error")
 	}
-
+	wg := &sync.WaitGroup{}
 	for num, v := range files {
 		fmt.Println("now run file ", num, "\n")
 		path_name := v.Name()
-
 		paths := patha + "/" + path_name
 
 		if v.IsDir() == true {
 			parselog(paths)
-
 		} else {
 			fmt.Println(paths)
-			ReadLine(paths, Datc)
+			wg.Add(1)
+			go ReadLine(wg, paths, Datc)
 		}
-
 	}
 }
 
@@ -124,7 +129,6 @@ func main() {
 		}
 	}()
 	path := getCurrentDirectory()
-
 	//获取当前文件的配置
 	paths := path + "/logs"
 	parselog(paths)
