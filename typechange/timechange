@@ -1,3 +1,14 @@
 	1)时间戳格式化输出 年月日一个大一个 不然会有问题
   var d int64 = 1510735053
 	fmt.Println(time.Unix(d, 0).Format("20060102"))
+
+//将UTC时间增加8小时为东部时间
+func TimeUtcToCst(t time.Time) time.Time {
+	return t.Add(time.Hour * time.Duration(8))
+}
+
+//将str转换为时间格式
+func StrToTime(st string) time.Time {
+	t, _ := time.ParseInLocation(f_datetime, st, time.Local)
+	return t
+}
