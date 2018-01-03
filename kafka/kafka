@@ -1,0 +1,466 @@
+package controllers
+
+import (
+	"ana/datatype"
+	"github.com/Shopify/sarama"
+    "github.com/bsm/sarama-cluster" //support automatic consumer-group rebalancing and offset tracking
+
+	"github.com/labstack/gommon/log"
+	"net/http"
+	"strings"
+	"time"
+
+	"fmt"
+	"github.com/golang/protobuf/proto"
+	"io/ioutil"
+	"net/http/httputil"
+
+	"github.com/labstack/echo"
+	"sync"
+
+	"ana/models"
+)
+
+//初始化创建管道保存数据
+
+//var MessChanelOne = make(chan []byte, 1000)
+
+//同步浏览日志数据处理
+var WebPageLog = make(chan []byte,10)
+
+
+const (
+	KafkaAddress string = "192.168.1.52:9092,192.168.1.53:9092,192.168.1.54:9092"
+	Topicdata    string = "data_report"
+	TopicAdt     string = "topic_adt"
+	WebPageLogs  string = "webpageaslogs"
+)
+
+type BackDat struct {
+	Code      int         `json:"code"`
+	Msg       string      `json:"msg"`
+	EventType string      `json:"eventType"`
+	Data      interface{} `json:"data"`
+}
+
+var (
+	wg    sync.WaitGroup
+	Debug bool = true
+)
+
+/*
+初始化
+*/
+
+func init() {
+	Ngnum()
+	//go AsyncProducer(Topicdata,MessChanelOne)
+	go Producers()
+	go AsyncProducer(WebPageLogs,WebPageLog)  //同步激活的数据
+}
+
+/*
+数据写入到kafka 异步生产者 生产者的topic 的名称 数据源chan 通用型的topic
+*/
+
+func AsyncProducer(topicName string,chandat chan []byte) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Print(err, "--->kafka")
+			models.SendMsgToDsp(interface{}(err).(error).Error()+"kafka 异步生产者错误")
+		}
+	}()
+
+	config := sarama.NewConfig()
+	config.Producer.Return.Successes = true //必须有这个选项
+	config.Producer.Timeout = 5 * time.Second
+	p, err := sarama.NewAsyncProducer(strings.Split(KafkaAddress, ","), config)
+
+	defer p.Close()
+
+	if err != nil || p == nil {
+		fmt.Print("kafka connect error!") // kafka 链接失败
+		return
+	}
+
+	//必须有这个匿名函数内容
+	go func(p sarama.AsyncProducer) {
+		defer func() {
+			if err := recover();err != nil{
+				fmt.Println("错误1001",err)
+			}
+		}()
+		errors := p.Errors()
+		success := p.Successes()
+		for {
+			select {
+			case err := <-errors:
+				if err != nil {
+					log.Print(err)
+				}
+			case <-success:
+			}
+		}
+	}(p)
+
+	forever := make(chan bool)
+
+	go func() {
+
+		for items := range chandat {
+
+			msg := &sarama.ProducerMessage{
+				Topic: topicName,
+				Value: sarama.ByteEncoder(items), //
+			}
+			//产生投放统计的监测的数据
+			p.Input() <- msg
+		}
+	}()
+
+	<-forever
+}
+
+//切分主题
+/*
+数据写入到kafka 异步生产者
+*/
+
+func AsyncProducerext(dat chan *datatype.AnasdkRequest) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Print(err, "--->kafka")
+			models.SendMsgToDsp(interface{}(err).(error).Error()+"kafka 异步生产者错误")
+		}
+	}()
+
+	config := sarama.NewConfig()
+	config.Producer.Return.Successes = true //必须有这个选项
+	config.Producer.Timeout = 5 * time.Second
+	p, err := sarama.NewAsyncProducer(strings.Split(KafkaAddress, ","), config)
+
+	defer p.Close()
+
+	if err != nil || p == nil {
+		fmt.Print("kafka connect error!") // kafka 链接失败
+		return
+	}
+
+	//必须有这个匿名函数内容
+	go func(p sarama.AsyncProducer) {
+		errors := p.Errors()
+		success := p.Successes()
+		for {
+			select {
+			case err := <-errors:
+				if err != nil {
+					log.Print(err)
+				}
+			case <-success:
+			}
+		}
+	}(p)
+
+	forever := make(chan bool)
+
+	go func() {
+		defer func() {
+			if err := recover(); err != nil {
+				fmt.Println(err)
+				models.SendMsgToDsp(interface{}(err).(error).Error()+"kafka生产错误")
+			}
+		}()
+
+		for items := range dat {
+			fmt.Println("789123")
+			if items == nil {
+				continue
+			}
+			hdat, err := proto.Marshal(items)
+			if err != nil {
+				fmt.Println("send Marshal error")
+			}
+			if len(items.EventList) == 0 {
+				continue
+			}
+
+			msg := &sarama.ProducerMessage{
+				Topic: items.EventList[0].EventType.String(),
+				Value: sarama.ByteEncoder(hdat), //
+			}
+
+			//产生投放统计的监测的数据
+			p.Input() <- msg
+		}
+
+	}()
+
+	<-forever
+}
+
+// consumer 消费者
+func Consumer(Customers chan []byte,topic string, groupID string) {
+
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Print("消费当前的信息")
+			models.SendMsgToDsp(interface{}(err).(error).Error()+"Anahttp 200 line")
+		}
+	}()
+
+    config := cluster.NewConfig()
+    config.Consumer.Return.Errors = true
+    config.Group.Return.Notifications = true
+    config.Consumer.Offsets.CommitInterval = 1 * time.Second
+    config.Consumer.Offsets.Initial = sarama.OffsetNewest //初始从最新的offset开始
+
+    c, err := cluster.NewConsumer(strings.Split(KafkaAddress, ","), groupID, strings.Split(topic, ","), config)
+    if err != nil {
+        fmt.Println("--->",err.Error())
+        return
+    }
+    defer c.Close()
+    go func() {
+
+        for err := range c.Errors() {
+			fmt.Println(err.Error())
+        }
+
+    }()
+
+    go func() {
+        for note := range c.Notifications() {
+            fmt.Printf("Rebalanced: %+v/n", note)
+        }
+
+    }()
+
+    for msg := range c.Messages() {
+        fmt.Printf("%s/%d/%d/t%s/n", msg.Topic, msg.Partition, msg.Offset, msg.Value)
+        if len(msg.Value) > 0 {
+
+            if Debug ==true{
+                dat := &datatype.AnasdkRequest{}
+                era := proto.Unmarshal(msg.Value, dat) //字符串
+                //验证数据
+                if era != nil {
+                    fmt.Println("转化错误iiiii", era)
+                    panic("解析错误 ")
+                }
+            }
+            Customers <- msg.Value
+        }
+
+        c.MarkOffset(msg, "") //MarkOffset 并不是实时写入kafka，有可能在程序crash时丢掉未提交的offset
+    }
+
+    return
+
+
+	//consumer, err := sarama.NewConsumer(strings.Split(KafkaAddress, ","), nil)
+    client, err := sarama.NewClient(strings.Split(KafkaAddress, ","),nil)
+	if err != nil {
+		panic(err)
+	}
+
+	consumer, err := sarama.NewConsumerFromClient(client)
+
+	if err != nil {
+		fmt.Print("90->")
+        panic(err)
+	}
+	//consumer.ownClient = true
+    if err := client.RefreshCoordinator(groupID); err != nil {
+		fmt.Print("RefreshCoordinator err", err)
+        panic(err)
+	}
+
+	partitionList, err := consumer.Partitions(topic)
+	if err != nil {
+		fmt.Print("91->", err)
+	}
+
+	for partition := range partitionList {
+		pc, err := consumer.ConsumePartition(topic, int32(partition), sarama.OffsetNewest)
+
+		if err != nil {
+			fmt.Print("123---KKLKL")
+		}
+
+		defer pc.AsyncClose()
+
+		wg.Add(1)
+
+		go func(sarama.PartitionConsumer) {
+
+			defer func() {
+				if err := recover();err != nil{
+					fmt.Println("消费错误",err)
+				}
+			}()
+
+			defer wg.Done()
+			for msg := range pc.Messages() {
+				fmt.Println("123mutouren")
+				if len(msg.Value) > 0 {
+
+					if Debug ==true{
+						dat := &datatype.AnasdkRequest{}
+						era := proto.Unmarshal(msg.Value, dat) //字符串
+						//验证数据
+						if era != nil {
+							fmt.Println("转化错误iiiii", era)
+							panic("解析错误 ")
+						}
+					}
+					Customers <- msg.Value
+				}
+			}
+		}(pc)
+	}
+
+	wg.Wait()
+
+	consumer.Close()
+}
+
+//简单消费
+
+// consumer 消费者
+func SimpleConsumer(Customers chan []byte,topic string) {
+
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Print("消费当前的信息")
+			models.SendMsgToDsp(interface{}(err).(error).Error()+"Anahttp 267 line")
+		}
+	}()
+
+	consumer, err := sarama.NewConsumer(strings.Split(KafkaAddress, ","), nil)
+
+	if err != nil {
+		fmt.Print("90->")
+	}
+
+	partitionList, err := consumer.Partitions(topic)
+	if err != nil {
+		fmt.Print("91->", err)
+	}
+
+	for partition := range partitionList {
+		pc, err := consumer.ConsumePartition(topic, int32(partition), sarama.OffsetNewest)
+
+		if err != nil {
+			fmt.Print("123---KKLKL")
+		}
+
+		defer pc.AsyncClose()
+
+		wg.Add(1)
+
+		go func(sarama.PartitionConsumer) {
+
+			defer func() {
+				if err := recover();err != nil{
+					fmt.Println("消费错误",err)
+				}
+			}()
+
+			defer wg.Done()
+			for msg := range pc.Messages() {
+				if len(msg.Value) > 0 {
+
+					//if Debug ==true{
+					//	dat := &datatype.AnasdkRequest{}
+					//	era := proto.Unmarshal(msg.Value, dat) //字符串
+					//	//验证数据
+					//	if era != nil {
+					//		fmt.Println("转化错误iiiii", era)
+					//		panic("解析错误 ")
+					//	}
+					//}
+					Customers <- msg.Value
+				}
+			}
+		}(pc)
+	}
+
+	wg.Wait()
+
+	consumer.Close()
+}
+
+/*
+	初始化 全部走统一的接口
+*/
+
+func Initindex(c echo.Context) error {
+
+	defer func() {
+		if err := recover(); err != nil {
+			log.Print(fmt.Sprint(c.Request().RequestURI), err)
+			if err != nil {
+				fmt.Print("Tberror")
+				models.SendMsgToDsp(interface{}(err).(error).Error()+"Anahttp api error 334")
+			}
+		}
+	}()
+
+	fmt.Println("main func")
+
+	httputil.DumpRequest(c.Request(), true)
+	bydata, _ := ioutil.ReadAll(c.Request().Body)
+
+	if Debug == true {
+		fmt.Print(string(bydata))
+	}
+
+	//数据写入到管道
+	dat := &datatype.AnasdkRequest{}
+
+	era := proto.Unmarshal(bydata, dat) //字符串
+
+	//验证数据
+	if era != nil {
+		u := &BackDat{}
+		u.Code = 0
+		u.EventType = "UnmarshalText" + c.Request().URL.String()
+		u.Msg = "解析错误"
+		u.Data = string(bydata)
+
+		return c.JSON(http.StatusOK, u)
+	}
+
+	if Debug == true {
+		//正式上线关闭
+		fmt.Print(dat.String())
+		_ , erra := proto.Marshal(dat)
+
+		if erra != nil {
+			u := &BackDat{}
+			u.Code = 0
+			u.EventType = "_ty_marshal"
+			u.Msg = "编译出错"
+			u.Data = dat.String()
+			return c.JSON(http.StatusOK, u)
+		}
+	}
+
+	//MessChanelOne <- bydata //数据写入到
+	SendChanl(bydata)
+
+	u := &BackDat{}
+	u.Code = 1
+	u.Msg = ""
+	//初始化的时候返回
+	for _, v := range dat.EventList {
+		if v.EventType == datatype.EventType_TY_INIT{
+			dd := make(map[string]interface{})
+			dd["onlineInterval"] = 60
+			dd["eventQueueCap"] = 5
+			u.Data = dd
+		}
+	}
+
+	return c.JSON(http.StatusOK, u)
+}
