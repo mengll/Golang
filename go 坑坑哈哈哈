@@ -137,3 +137,22 @@ BH:
 
 }
 
+8）字符串指针指向的数据内容
+package main
+
+func main() {
+	s := "123"
+	ps := &s
+	b := []byte(*ps)
+	pb := &b
+
+	s += "4"
+	println(*ps) // *ps 指向的内存地址的数据发生了改变,导致获取的数据的时候,发生改变 1234
+
+	*ps += "5"
+	b[1] = '0'
+
+	println(*ps)
+	println(string(*pb))
+}
+
