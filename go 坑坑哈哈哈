@@ -122,4 +122,18 @@ func main() {
 	//interface{} 表示的是任意的类型的数据 *interface{} 表示的是指向一个结果的指针 
 }
 
+7) GOTO 与 break的区别
+package main
+
+func main() {
+BH:
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			print(i, ",", j, " ")
+			break BH  //使用break的时候会跳出，只执行一次 当使用goto的时候是跳转到某处开始执行，当使用goto的时候会不停的执行
+		}
+		println()
+	}
+
+}
 
