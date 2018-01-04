@@ -98,4 +98,28 @@ func main() {
 
 6）获取当前的路径
 	path, err := os.Getwd()
+	
+7)interface{}数据类型的差别
+package main
+
+type S struct {
+}
+
+func f(x interface{}) {
+}
+
+func g(x *interface{}) {
+}
+
+func main() {
+	s := S{}
+	p := &s
+	f(s) //A correct
+	g(s) //B incorrect 错误
+	f(p) //C correct
+	g(p) //D incorrect 错误 
+	
+	//interface{} 表示的是任意的类型的数据 *interface{} 表示的是指向一个结果的指针 
+}
+
 
