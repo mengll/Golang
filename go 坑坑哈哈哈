@@ -155,4 +155,27 @@ func main() {
 	println(*ps)
 	println(string(*pb))
 }
+9) json 的解释符号
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+type Result struct {
+	Status int `json:"status"` // 如果遗漏在解析json数据的时候无法正常的解析
+}
+
+func main() {
+	var data = []byte(`{"status": 200}`)
+	result := &Result{}
+
+	if err := json.Unmarshal(data, result); err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+
+	fmt.Printf("result=%+v", result)
+}
 
