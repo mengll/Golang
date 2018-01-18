@@ -61,3 +61,91 @@ func (role *Grole) Run() {
 func (role *Grole) Fuck() {
 	fmt.Println(role.RoleName)
 }
+
+
+
+package main
+
+import "fmt"
+
+//指定当前的数据操作
+type Game struct {
+	name string `json:"name"`
+	age  int    `json:"age"`
+}
+
+//包外的函数导入的时候会全部打导入到main 中
+
+func Add(a, b int) int {
+
+	return a + b
+}
+
+//数据交换方法
+func Swaps(a, b int) (int, int) {
+	if a > b {
+		a, b := b, a
+		return a, b
+	}
+	return a, b
+}
+
+//使用多参数
+func mores(a int, b ...int) {
+	println("传入不定参数", a)
+	for _, v := range b {
+		println("dog->", v)
+	}
+}
+
+func main() {
+	fmt.Println(len("您好"))
+
+	var c = [...]int{2: 3, 4: 6} //切片功能的实现方式和实践的方法的操作，过程
+	fmt.Println(c)
+
+	var game = make(map[int]string)
+	game[1] = "jhj"
+	game[2] = "2eer"
+	game[0] = "shijiedazhan"
+	game[4] = "wanchengde shijien"
+
+	//键值对形式的数组，导出的时候顺序是顺序的
+	for k, v := range game {
+		fmt.Println(k, v)
+	}
+
+	fmt.Println(game) //数组是值类型，只要修改其中的一个值，将发生全量拷贝  数组长度的复制，必须是想用的类型，相同的长度的，才能对数据，
+
+	//map初始化的方式append(
+	pp := map[string]string{"name": "mengll", "age": "20"}
+	fmt.Println(pp)
+
+	//传递数组指针的形式，操作
+
+	var a = [...]int{1, 2, 3}
+	var d = &a
+
+	//	Go语言中数组是值语义。一个数组变量即表示整个数组，它并不是隐式的指向第一个元素的指针（比如C语言的数组），
+	//	而是一个完整的值。当一个数组变量被赋值或者被传递的时候，实际上会复制整个数组。如果数组较大的话，数组的赋值也会有较大的开销。
+	//	为了避免复制数组带来的开销，可以传递一个指向数组的指针，但是数组指针并不是数组。
+	//	其中b是指向a数组的指针，但是通过b访问数组中元素的写法和a类似的。还可以通过for range来迭代数组指针指向的数组元素。
+	//	其实数组指针类型除了类型和数组不同之外，通过数组指针操作数组的方式和通过数组本身的操作类似，而且数组指针赋值时只会拷贝一个指针。
+	//	但是数组指针类型依然不够灵活，因为数组的长度是数组类型的组成部分，指向不同长度数组的数组指针类型也是完全不同的。
+	for k, v := range d {
+		println(k, v)
+	}
+
+	//go 语言中的字符串是一个不可改变的字节序列，字符串通常是他用来包含人类可读文本数据，
+
+	//字符串的赋值，也是字符串复制哦，过程 执行导入包的方法
+	kl := Add(2, 3)
+	println(kl)
+
+	h, j := Swaps(34, 4)
+	println(h, j)
+
+	//传入多个参数
+	mores(1, 2, 34, 55, 67) //数据执行过程
+}
+
