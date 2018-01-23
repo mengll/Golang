@@ -63,6 +63,29 @@ func f() (result int) {
 		return
 }
 
+//案例2变形后
+func f() (r int) {
+	t := 5
+	r = t //赋值指令
+	func() { //defer被插入到赋值与返回之间执行，这个例子中返回值r没被修改过
+	t = t + 5
+	} 
+	return //空的return指令
+}
+
+//案例三变形后
+func f() (r int) {
+	r = 1 //给返回值赋值
+	func(r int) { //这里改的r是传值传进去的r，不会改变要返回的那个r值
+		r = r + 5
+	}(r)
+	return //空的return
+}
+
+
+defer确实是在return之前调用的。但表现形式上却可能不像。本质原因是return xxx语句并不是一条原子指令，defer被插入到
+了赋值 与 ret之间，因此可能有机会改变最终的返回值
+
 
 
 
