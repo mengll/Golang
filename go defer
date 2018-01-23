@@ -34,7 +34,7 @@ func f() (r int) {
 	defer func() {
 		t = t + 5
 	}()
-	return t
+	return t  // 返回值为5 当操作的值不是返回值得时候，defer中的数据不会影响 数据库中的操作
 }
 
 案例三 
