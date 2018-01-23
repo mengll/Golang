@@ -17,3 +17,31 @@ func main() {
 
 
 go defer 里面的值是defer 在哪，里面的值就会从什么地方那个，获取当前的数据
+
+
+1)defer中的坑
+案例一 //返回的结果是1
+func f() (result int) {
+	defer func() {
+		result++
+	}()
+	return 0
+}
+案例2
+
+func f() (r int) {
+	t := 5
+	defer func() {
+		t = t + 5
+	}()
+	return t
+}
+
+案例三 
+func f() (r int) {
+	defer func(r int) {
+		r = r + 5
+	}(r)
+	
+	return 1
+}
