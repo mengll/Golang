@@ -45,3 +45,24 @@ func f() (r int) {
 	
 	return 1
 }
+
+函数返回的过程是这样的：先给返回值赋值，然后调用defer表达式，最后才是返回到调用函数中。
+defer表达式可能会在设置函数返回值之后，在返回到调用函数之前，修改返回值，使最终的函数返回值与你想象的不一致。
+其实使用defer时，用一个简单的转换规则改写一下，就不会迷糊了。改写规则是将return语句拆成两句写，return xxx会被改
+写成:
+	返回值 = xxx
+	调用defer函数
+	空的return
+
+func f() (result int) {
+	result = 0 //return语句不是一条原子调用，return xxx其实是赋值＋ret指令
+
+	func() { //defer被插入到return之前执行，也就是赋返回值和ret指令之间
+		result++
+		}()
+		return
+}
+
+
+
+
