@@ -28,3 +28,6 @@ func main() {
 	ain.Connect()
 	fmt.Println("Hello World!")
 }
+
+
+interface 的变量存储的是实现了interface 的类型的对象值
