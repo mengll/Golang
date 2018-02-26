@@ -14,3 +14,43 @@ func main() {
 	fmt.Println(K) //闭包的处理
 	fmt.Println("This is Package!")
 }
+
+
+
+//函数的调用参数传递过程
+
+
+package main
+
+import (
+	"fmt"
+)
+
+func mby(a *int) {
+	fmt.Printf("传递的过来的地址:%p \n", &a)
+	fmt.Println(a)
+}
+
+func myfunc(p map[string]int) {
+	fmt.Println(p)
+	p["old"] = 90
+}
+
+func main() {
+	i := 10
+	ip := &i
+	fmt.Printf("原始地址:%p \n", ip) //传递的是当前对象的对象 传递的是当前对象额，内存地址
+
+	mby(ip)
+
+	pp := make(map[string]int)
+	pp["old"] = 123
+
+	fmt.Println("map 对象内存地址 :%p", &pp)
+
+	myfunc(pp)
+
+	fmt.Println(pp) //传递的是引用类型的数据，改变其中的值就回改变原始的数据
+
+	//函数调用的过程，分为船只和
+}
