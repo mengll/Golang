@@ -1,0 +1,18 @@
+1）GO的接口类型定义了一组行为，其中每个行为都有一个方法声明表示，接口类型中的方法声明只有方法签名而没有方法体，而方法的签名包含了方法的名称，参数
+列表和结构列表
+
+pe Talk interface{
+    Hello(user string) string
+}
+
+type 接口类型声明类型，interface 以及由花括号包裹的方法的声明集合，共同组成一个接口的声明
+
+只要一个数据类型的方法集合中包含了Talk接口声明的所有方法，那它一定是Talk接口的类型实现
+
+ type myTalk string 
+ 
+ func (self *myTalk)Hello(uname string)string{
+  return ""
+ }
+ 
+ 必须是var talk = new (myTalk)
