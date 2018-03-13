@@ -52,6 +52,35 @@ func main() {
 	}
 }
 
+func main() {
+	runtime.GOMAXPROCS(1) / /及时是1 我的值也是随机的，你看着办
+	two_chan := make(chan int ,1)
+	int_chan := make(chan int, 1)
+
+	go func(){
+		two_chan <- 2
+	}()
+
+	go func() {
+		int_chan <- 1
+	}()
+
+	//case 是被随机的但是 case的内容取值是有一定的顺序的
+
+	for i:=0;i<2;i++{
+		select {
+		case value,ok := <-int_chan:
+			fmt.Println(value,ok)
+
+		case vl,ok := <-two_chan:
+			println(ok,vl)
+		}
+	}
+}
+
+// default 中摆放的顺序不会影响 select 执行的顺序
+
+
 //select is random  you dot't know of which one is first run
 
 4)golang 中的赋值操作 都会拷贝一份 及深拷贝
