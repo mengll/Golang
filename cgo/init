@@ -1,0 +1,63 @@
+1)
+而cgo似乎是 不关心 或者 不认 我给mingw设置的环境变量
+
+ 需要自己设置 头文件 和 库文件的地址
+
+比如 cgo参数的使用
+
+//#cgo CFLAGS:  -I../../cinclude
+//#cgo LDFLAGS: -L../../clib -lgsasl
+
+//#include <gsasl.h>
+
+......
+
+CFLAGS
+
+上边指示了头文件地址
+
+LDFLAGS
+
+下边的表明了库文件地址
+
+都是当前文件的相对位置
+
+-I (大写)指示了头文件目录
+
+-L 指示了库文件目录 -l(L小写)指示所用的具体的某个库文件
+
+
+//主文件的操作main引入相关的C的文件的处理
+// main.go
+package utilmengll
+
+import "fmt"
+/*
+#cgo CFLAGS:  -I./utilmengll
+#include "util.h"
+*/
+import "C"
+
+func GoSum(a,b int){
+	s := C.sumone(C.int(a),C.int(b))
+	fmt.Println(s)
+
+}
+
+//package utilsmeng/util.h
+int sumone(int a,int b);
+
+//函数主题
+// package utilmengll/util.c
+#include "util.h"
+int sumone(int a,int b){
+    return (a+b);
+}
+
+//导入到go文件中的是*.h的文件如果到处*.c的话，会造成重复导入
+
+
+
+
+
+
