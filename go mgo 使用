@@ -307,6 +307,7 @@ func main(){
 
 }
 
+//数据库额连接错误
+ con_str = fmt.Sprintf("%s:%s@%s:%s/%s", conf.Mongo_log_user, conf.Mongo_log_password, conf.Mongo_log_host, conf.Mongo_log_port,conf.Mongo_log_database)
 
-
-
+在不填写数据库的连接的库名的时候出现 授权错误
