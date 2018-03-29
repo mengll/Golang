@@ -188,3 +188,7 @@ process(my)               //process函数需要adder接口类型参数
 process(handler(doubler)) //因为process接受的参数类型是handler，所以这儿要强制转换
 process(myint(8))         //实现adder接口不仅可以是函数也可以是结构体
 }
+
+//创建type的数据类型
+type mystruct [3]string 潜在类型是String 不是【】string 因为不是一个预定义的类型 也不是一个类型字面类的复合类型
+
