@@ -56,7 +56,7 @@ int sumone(int a,int b){
 
 //导入到go文件中的是*.h的文件如果到处*.c的话，会造成重复导入
 
-
+cgo字符串模式，C.CString() 当前的字符串
 
 
 
