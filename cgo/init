@@ -37,11 +37,11 @@ import "fmt"
 #include "util.h"
 */
 import "C"
-
-func GoSum(a,b int){
+//按照c语言的返回的类型处理
+func GoSum(a,b int) C.int{
 	s := C.sumone(C.int(a),C.int(b))
 	fmt.Println(s)
-
+	return s
 }
 
 //package utilsmeng/util.h
