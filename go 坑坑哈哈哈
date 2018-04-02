@@ -208,3 +208,9 @@ func main() {
 	fmt.Printf("result=%+v", result)
 }
 
+10）
+	var hj string = "dk"
+	switch c := hj.(type) { //type 断言的方式，只能使用在switch中
+	case string:
+		println(c)
+	}
