@@ -19,3 +19,6 @@ val,ok := map[key]
 if !ok{
    判断不存爱
  }
+
+3)删除集合对象中的数据
+delete(map,key)
