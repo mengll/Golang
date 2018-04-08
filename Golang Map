@@ -13,3 +13,9 @@ func main() {
 
 	fmt.Println(mp)
 }
+
+2）map的数据对象判断是否存在使用
+val,ok := map[key]
+if !ok{
+   判断不存爱
+ }
