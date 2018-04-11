@@ -10,3 +10,10 @@ var jk = "12"
 		fmt.Println("This is 啊string ")
 	}
 
+``` 
+
+type ty struct {
+   Name string `json:"name"`
+}
+`` 部分被称为标记tag  表示的是json 解码的元数据 用于创建ty数据类型原值的切片 使用这个函数读取数据
+```
