@@ -13,6 +13,10 @@ type(
 		addSet(key,val string) error
 		setKey(k string ,v interface{}) error
 		delSet(key,val string) error
+		GetKey(k string)string
+		SPop(k string) string
+		DelKey(k string) error
+		SMembers(k string)([]string,error)
 	}
 
 	GsRedisManage struct {
@@ -49,6 +53,27 @@ func (this *GsRedisManage)addSet(key,val string) error{
 //判断是否存在
 func (this *GsRedisManage)hadSet(key,val string) bool{
 	return this.RS.SIsMember(key,val).Val()
+}
+
+//获取数据
+func (this *GsRedisManage) GetKey(k string) string {
+	return this.RS.Get(k).Val()
+}
+
+//随机删除并返回
+func(this *GsRedisManage)SPop(k string) string{
+	return this.RS.SPop(k).Val()
+}
+
+//删除键
+func(this *GsRedisManage)DelKey(k string) error{
+	return this.RS.Del(k).Err()
+}
+
+//获取集合中的内容
+func(this *GsRedisManage)SMembers(k string)([]string,error){
+	set_val := this.RS.SMembers(k)
+	return set_val.Val(),set_val.Err()
 }
 
 //获取集合中的数量
