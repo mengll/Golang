@@ -1,107 +1,136 @@
-package models
-//当前处理pgsql的处理合集
 import (
+	"context"
 	"database/sql"
 	"fmt"
-	_ "github.com/lib/pq"
-	"context"
 	"strconv"
+	_ "github.com/lib/pq"
 )
 
 type Pg struct {
-	Db *sql.DB
+	Db     *sql.DB
 	Pgstmt *sql.Stmt
-	PgTx *sql.Tx
+	PgTx   *sql.Tx
+}
+
+type Pginterface interface{
+	PgConnect()
+	Pgclose()
+	PrepareContext(ctx context.Context, query string)
+	Prepure(str string) (*sql.Stmt,error)
+	Exec(args ...interface{})
+	Begin()
+	Commit()
+	Rollback()
+	PgstmtClose()
+	Ping()
 }
 
 //pgconnect 处理当前的数据库路链接
 
-func (self *Pg) PgConnect(){
+func (self *Pg) PgConnect() {
 	defer func() {
-		if err :=recover();err !=nil{
-			fmt.Println("pg connect error",err)
+		if err := recover(); err != nil {
+			fmt.Println("pg connect error", err)
 		}
 	}()
 
 	var err error
-	port,era := strconv.Atoi(PgConf.Port)
+	port, era := strconv.Atoi(PgConfAdt.Port)
 
-	if era != nil{
+	if era != nil {
 		fmt.Println("端口转化错误")
 	}
 
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", PgConf.Host, port , PgConf.User, PgConf.PassWord, PgConf.DataBase)
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", PgConfAdt.Host, port, PgConfAdt.User, PgConfAdt.PassWord, PgConfAdt.DataBase)
 
-	fmt.Println("======\n")
-	fmt.Println(psqlInfo)
-	fmt.Println("-----\n")
-	self.Db , err = sql.Open("postgres", psqlInfo)
+	self.Db, err = sql.Open("postgres", psqlInfo)
 
 	if err != nil {
 		fmt.Print("pg connect err")
+		panic("PG connect error")
+	}
+
+	erra := self.Db.Ping()
+	if erra != nil {
+		fmt.Println("pg connect error")
 	}
 
 }
 
 //关闭当前链接
-func (self *Pg)Pgclose(){
+func (self *Pg) Pgclose() {
 	self.Db.Close()
 }
 
 //预处理当前的信息
-func (self *Pg)PrepareContext(ctx context.Context,query string){
-	self.Pgstmt,_ = self.Db.PrepareContext(ctx,query)
+func (self *Pg) PrepareContext(ctx context.Context, query string) {
+	self.Pgstmt, _ = self.Db.PrepareContext(ctx, query)
 }
 
 //创建预处理语句  Prepare("insert into user(name, sex)values($1,$2)")
-func (self *Pg)Prepure(str string){
+func (self *Pg) Prepure(str string)(*sql.Stmt,error){
 
-	  var err error
-	  self.Pgstmt, err	= self.Db.Prepare(str)
-
-      if err != nil{
-      	panic("query prepure error")
-	  }
+	Pgstmt, err := self.Db.Prepare(str)
+	return Pgstmt,err
 }
 
 //执行当前预处理的语句
-func (self *Pg)Exec(args ...interface{}){
+func (self *Pg) Exec(args ...interface{}) {
 	defer func() {
-		if err := recover();err != nil{
+		if err := recover(); err != nil {
 			self.Pgstmt.Close() //关闭当前的链接
+			fmt.Println(err)
 		}
 	}()
-	rs, err := self.Pgstmt.Exec(args)
+
+	rs, err := self.Pgstmt.Exec(args[0], args[1], args[2], args[3], args[4], args[5])
 
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	//可以获得影响行数
 	affect, err := rs.RowsAffected()
-	fmt.Println(affect) //当前影响的行数
+	if err != nil {
+		fmt.Println(affect) //当前影响的行数
+	}
+
 }
 
 //开启事务处理
-func (self *Pg)Begin(){
+func (self *Pg) Begin() {
 	var err error
-	self.PgTx ,err = self.Db.Begin()
-	if err != nil{
+	self.PgTx, err = self.Db.Begin()
+	if err != nil {
 		panic(err)
 	}
 }
 
 //事务的回滚
-func (self *Pg)Rollback(){
+func (self *Pg) Rollback() {
 	self.PgTx.Rollback()
 }
 
 //提交
-func (self *Pg)Commit(){
+func (self *Pg) Commit() {
 	self.PgTx.Commit()
 }
 
 //关闭presql
 
-func (self *Pg)PrClose(){
-	self.Pgstmt.Close()  //关闭当前的预处理语句
+func (self *Pg) PgstmtClose() {
+	self.Pgstmt.Close() //关闭当前的预处理语句
+}
+
+//检查当前是链接
+func (self *Pg) Ping() {
+	err := self.Db.Ping()
+	if err != nil {
+		panic("pglost connect")
+	}
+}
+
+//创建新的pg对象
+func NewPg() Pginterface{
+	return &Pg{}
 }
