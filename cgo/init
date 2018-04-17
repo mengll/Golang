@@ -59,5 +59,18 @@ int sumone(int a,int b){
 cgo字符串模式，C.CString() 当前的字符串
 
 
+`go1.10后的新的写法`
 
+package main
+//extern void SayHello(_GoString_ s);
+import "C"
+import "fmt"
+
+func main(){
+	C.SayHello("Hello,world \n")
+}
+//export SayHello
+func SayHello(s string){
+	fmt.Println(s)
+}
 
