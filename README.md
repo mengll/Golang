@@ -17,3 +17,27 @@ type ty struct {
 }
 `` 部分被称为标记tag  表示的是json 解码的元数据 用于创建ty数据类型原值的切片 使用这个函数读取数据
 ```
+
+```
+
+//创建
+	func SetCookie(k, v string, t int, w *http.ResponseWriter) {
+		COOKIE_MAX_MAX_AGE := t // 单位：秒。
+		maxAge := int(COOKIE_MAX_MAX_AGE)
+
+		uid_cookie := &http.Cookie{
+			Name:     k,
+			Value:    v,
+			Path:     "/",
+			HttpOnly: false,
+			MaxAge:   maxAge}
+		http.SetCookie(*w, uid_cookie) //
+	}
+
+	//获取Key
+	func GetCookie(k string, r *http.Request) string {
+		cokcont, _ := r.Cookie(k)
+		return cokcont.Value //获取当前缓存的K
+	}
+
+```
