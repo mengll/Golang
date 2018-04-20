@@ -39,5 +39,13 @@ type ty struct {
 		cokcont, _ := r.Cookie(k)
 		return cokcont.Value //获取当前缓存的K
 	}
+	
+	//将str转换为时间格式
+	func StrToTime(st string) time.Time {
+		t, _ := time.ParseInLocation(f_datetime, st, time.Local) //时间戳转化
+		return t
+	}
+	
+	postdate := StrToTime("2017-09-11 00:00:00")
 
 ```
