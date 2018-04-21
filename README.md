@@ -62,5 +62,6 @@ type ty struct {
 			log.Println(err)
 		}
 	}
-
+       //检查当前程序的竞态
+       go run -race  main.go
 ```
