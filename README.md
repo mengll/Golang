@@ -64,4 +64,19 @@ type ty struct {
 	}
        //检查当前程序的竞态
        go run -race  main.go
+	// 随机延时调用
+	now_hour := time.Now().Hour()
+	af_time := 10
+	rand_int := rand.Intn(time.Now().Nanosecond())
+	ra, _ := strconv.Atoi(strconv.Itoa(rand_int)[:1])
+
+	if now_hour < 6 {
+		af_time = 10 + ra
+	} else {
+		af_time = 3 + ra
+	}
+
+	select {
+
+	case <-time.After(time.Second * time.Duration(af_time)):
 ```
