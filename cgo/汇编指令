@@ -123,3 +123,9 @@ Go Array有不是指向第一个元素的指针，而是代表整个数组。赋
 Go slice有三个部分， 一个指针，一个长度，一个容量，指针8个字节，长度和容量4个字节
 
 一个slice没有固定的长度。slice不能指定长度。一个slice如果要增加capacity必须创建一个新的容量更大的slice，并copy内容过去。
+
+参考地址
+https://www.cnblogs.com/yjf512/p/6132868.html
+
+
+
