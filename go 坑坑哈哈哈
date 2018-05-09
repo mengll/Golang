@@ -214,3 +214,23 @@ func main() {
 	case string:
 		println(c)
 	}
+	
+11) 反射的函数，使用的是大写 不然会调用出错
+type Game struct {
+	name string
+}
+
+func (self *Game)Show(){
+	fmt.Println("This is the best")
+}
+
+//创建文件
+func main(){
+	 a := new(Game)
+	fu := reflect.ValueOf(a)
+	mv := fu.MethodByName("Show")
+	mv.Call([]reflect.Value{})
+}
+
+
+
