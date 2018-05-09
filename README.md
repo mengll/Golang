@@ -79,4 +79,12 @@ type ty struct {
 	select {
 
 	case <-time.After(time.Second * time.Duration(af_time)):
+	
+	func Log(txt interface{}) {
+		pc, file, line, ok := runtime.Caller(1)
+		f := runtime.FuncForPC(pc)
+		fmt.Println("【pkgame】", fmt.Sprintf("func = %s,file = %s,line = %d,ok = %v ,val = %v", f.Name(), file, line, ok, txt))
+	}
+
+	
 ```
