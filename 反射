@@ -86,3 +86,32 @@ func (a *Show) S() {
 func (b *Show) Bq(o int) {
 	fmt.Printf("is this your umbrella! %s and the of it is %d", b.Name, o)
 }
+
+
+	method, hand_find := reflect.TypeOf(c).MethodByName("Fuck")
+	//end switch
+	if hand_find == false {
+
+	}
+
+	args_num := method.Type.NumIn()
+	println("args_num", args_num)
+	args := []reflect.Value{}
+
+	if args_num > 1 {
+		for i := 1; i < args_num; i++ {
+			fmt.Printf("【参数】%v", method.Type.In(1).Elem().String())
+			println("ender\n")
+			switch method.Type.In(i).Kind() {
+
+			case reflect.String:
+				println("The best is strga")
+				fk := reflect.ValueOf("mengll")
+				args = append(args, fk)
+			case reflect.Int:
+				fkqa := reflect.ValueOf(22)
+				args = append(args, fkqa)
+
+			}
+		}
+	}
