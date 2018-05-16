@@ -141,3 +141,6 @@ func (b *Show) Bq(o int) {
  //
  fmt.Println(reflect.TypeOf(map[string]int{}).Elem())   // int
  fmt.Println(reflect.TypeOf([] int32{})).Elem())       // int32
+ 
+ //当使用 ValueOf(o) 的时候 Elem 获取的是目标对象数据
+ 
