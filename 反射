@@ -138,4 +138,6 @@ func (b *Show) Bq(o int) {
 		jk := new(ReqDat)
 		fmt.Println("底层类型：", reflect.TypeOf(jk).Elem()) //底层类型： main.ReqDat
 	
-	
+ //
+ fmt.Println(reflect.TypeOf(map[string]int{}).Elem())   // int
+ fmt.Println(reflect.TypeOf([] int32{})).Elem())       // int32
