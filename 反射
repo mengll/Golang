@@ -144,3 +144,6 @@ func (b *Show) Bq(o int) {
  
  //当使用 ValueOf(o) 的时候 Elem 获取的是目标对象数据
  
+//可以使用 Interface的方法进行类型的推断和转换
+
+p,ok := v.Interface().(type)   //valueof的类型推断
