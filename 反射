@@ -115,3 +115,27 @@ func (b *Show) Bq(o int) {
 			}
 		}
 	}
+	
+	Type 和 Kind Type 表示真实类型（静态类型）。Kind 表示其基础结构（底层类型）
+	type X int  
+	
+	func main(){
+	var a X = 100
+	t := reflect.TypeOf(a)
+	fmt.Println(t.Name(),t.Kind()) // X int
+	}
+	
+	//main.go
+	
+	ReqDat struct {
+		Cmd        string                 `json:"cmd"`
+		Data       map[string]interface{} `json:"data"`
+		MessageId  string                 `json:"message_id"`
+		MessageKey string                 `json:"message_key"`
+	}
+	
+	//方法Elem 返回指针，切片，数组，字典（值）或通道的基础类型
+		jk := new(ReqDat)
+		fmt.Println("底层类型：", reflect.TypeOf(jk).Elem()) //底层类型： main.ReqDat
+	
+	
