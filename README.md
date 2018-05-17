@@ -88,3 +88,45 @@ type ty struct {
 
 	
 ```
+
+```
+动态设置获取的值
+
+type Gamea struct {
+	Name string `json:"name,username"`
+	Age int `json:"age"`
+}
+
+func main(){
+	nam := `{"username":"fja","age":12}`
+	Gm := Gamea{}
+	//bb,_ := json.MarshalIndent(Gm,nam,"\t")
+	json.Unmarshal([]byte(nam),&Gm)
+	fmt.Println(Gm.Name,Gm.Age)
+
+	t := reflect.TypeOf(Gm)
+    vv := reflect.ValueOf(&Gm)
+	for i:=0;i<t.NumField();i++{
+		names := t.Field(i).Tag.Get("json")
+		for _,v := range strings.Split(names,","){
+			fmt.Println(v)
+				//println("Ths is age ",t.Field(i).Name)
+		jkk := vv.Elem().FieldByName(t.Field(i).Name)
+		switch t.Field(i).Type.Kind() {
+		case reflect.Int:
+			jkk.SetInt(19)
+		case reflect.String:
+			jkk.SetString("mlove")
+
+		}
+
+		}
+	}
+
+	fmt.Println(Gm.Age)
+	fmt.Println(Gm.Name)
+}
+
+```
+
+
