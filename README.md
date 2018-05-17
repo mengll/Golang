@@ -130,3 +130,12 @@ func main(){
 ```
 
 
+```
+执行相关的单元测试命令
+go test -v main_test.go main.go  第一个参数测试文件，第二个是被测试的文件
+
+2对单个方法进行测试
+go test -v -test.run TestFunc   TestFunc 是想要执行的测试的测试函数
+
+```
+
