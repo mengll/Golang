@@ -86,6 +86,22 @@ func f() (r int) {
 defer确实是在return之前调用的。但表现形式上却可能不像。本质原因是return xxx语句并不是一条原子指令，defer被插入到
 了赋值 与 ret之间，因此可能有机会改变最终的返回值
 
+案例四 defer的取值问题
+
+type Car struct {
+  model string
+}
+func (c Car) PrintModel() {
+  fmt.Println(c.model)
+}
+func main() {
+  c := Car{model: "DeLorean DMC-12"}
+  defer c.PrintModel()
+  c.model = "Chevrolet Impala"
+}
+//输出内容
+//DeLorean DMC-12   defer
+
 
 
 
