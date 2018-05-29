@@ -139,3 +139,26 @@ go test -v -test.run TestFunc   TestFunc 是想要执行的测试的测试函�
 
 ```
 
+```
+go变种操作
+import (
+    "fmt"
+    "sync"
+    "time"
+)
+
+type WaitGroupWrapper struct {
+    sync.WaitGroup
+}
+
+func (w *WaitGroupWrapper) Wrap(cb func(argvs ...interface{}), argvs ...interface{}) {
+    w.Add(1)
+    go func() {
+        cb(argvs...)
+        w.Done()
+    }()
+}
+
+```
+
+
