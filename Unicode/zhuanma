@@ -150,3 +150,16 @@ func main() {
 	cfbdec.XORKeyStream(plaintextCopy, ciphertext)
 	fmt.Printf("%x=>%s\n", ciphertext, plaintextCopy)
 }
+
+
+
+```
+//网页内容gbk转utf8
+utd8RedeR  := transform.newReader(resp.Body,simplifiedchinese.GBK.NewDecoer());
+all,err := ioutil.ReadAll(utf8Reader)
+if err != nil{
+	panic(err)
+}
+
+fmt.Prinft()
+```
