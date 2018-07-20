@@ -159,6 +159,10 @@ func (w *WaitGroupWrapper) Wrap(cb func(argvs ...interface{}), argvs ...interfac
     }()
 }
 
+###获取字符串的真是长度 而不是字节长度
+使用普通的len()获取的是字节的长度 中文字符占据了三个字节 要想获取真正的字符长度那就
+utf8.RuneCountInString(name)
+
 ```
 
 
