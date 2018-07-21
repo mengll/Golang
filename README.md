@@ -163,6 +163,8 @@ func (w *WaitGroupWrapper) Wrap(cb func(argvs ...interface{}), argvs ...interfac
 使用普通的len()获取的是字节的长度 中文字符占据了三个字节 要想获取真正的字符长度那就
 utf8.RuneCountInString(name)
 
+base64的数据的长度必须是满足 4的倍数，如果不满足需要补上 = 缺少几个就需要补几个
+
 ```
 
 
