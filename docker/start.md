@@ -7,4 +7,6 @@ docker.exe run -it -p 8080:1323 -v e:/Go/tool/src:/go/src mllgo:v1 /go/src/pk_ad
 镜像名：版本
 要执行的命令
  顺序可能影响执行结果
+ 
+docker.exe build -f .\Dockerfile -t mll\go . 在当前目录下   
 ```
