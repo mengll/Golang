@@ -22,4 +22,6 @@ docker start
 
 # docker attach 重新的回归导已运行的容器上 还有 docker exec -it 
 
+# docker top 容器  查看当前容器运行的所有的进程
+
 ```
