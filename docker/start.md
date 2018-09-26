@@ -20,4 +20,6 @@ docker run
 #运行一个已经存在的容器
 docker start 
 
+# docker attach 重新的回归导已运行的容器上 还有 docker exec -it 
+
 ```
