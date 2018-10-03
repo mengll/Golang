@@ -1,6 +1,7 @@
 # Golang
 ###切片清空  	chans = chans[:0]
 ###interface 类型断言 interface{}(a).(string) interface{}类型转化下，在进行断言
+# 通过make创建的切片对外是不可见的，只能通过slice的方式处理数据 make的方式创建数据的访问地址（这很重要）
 
 ##对于一个数据类型的断言
 var jk = "12"
