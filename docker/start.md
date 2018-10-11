@@ -24,4 +24,7 @@ docker start
 
 # docker top 容器  查看当前容器运行的所有的进程
 
+# docker 调用数据卷容器
+docker run -it --name mygo --volumes-from=web_c -e GOPATH=/data/golang -e GOBIN=/data/golang/bin golang /bin/bash
+
 ```
