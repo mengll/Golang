@@ -167,5 +167,16 @@ utf8.RuneCountInString(name)
 base64的数据的长度必须是满足 4的倍数，如果不满足需要补上 = 缺少几个就需要补几个
 
 ```
+```
+### 程序信号
+		// 信号终止程序退出
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGQUIT) // 进程终止（软件终止），中断进程 ，杀死进程，中止信号，建立Core文件终止进程
+	go func() {
+		s := <-ch
+		log.Printf("receive signal '%v'", s)
+		os.Exit(1)
+	}()
 
+```
 
