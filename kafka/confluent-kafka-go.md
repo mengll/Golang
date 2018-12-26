@@ -16,5 +16,5 @@ export PKG_CONFIG_PATH=/usr/lib/pkgconfig
 
 $ source ~/.bashrc
 
-### start not find kafkalib
-cd /etc  ldconfig重新加载配置即可
+### start not find kafkalib  
+ldconfig重新加载配置即可
