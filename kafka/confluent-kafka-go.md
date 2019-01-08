@@ -18,3 +18,11 @@ $ source ~/.bashrc
 
 ### start not find kafkalib  
 ldconfig重新加载配置即可
+
+
+### install
+git clone https://github.com/edenhill/librdkafka.git
+cd librdkafka
+./configure --prefix /usr
+make
+sudo make install
