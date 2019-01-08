@@ -21,8 +21,8 @@ ldconfig重新加载配置即可
 
 
 ### install
-git clone https://github.com/edenhill/librdkafka.git
-cd librdkafka
-./configure --prefix /usr
-make
+git clone https://github.com/edenhill/librdkafka.git \n
+cd librdkafka \n
+./configure --prefix /usr \n
+make \n
 sudo make install
