@@ -34,3 +34,5 @@ protoc -I . --go_out=plugins=grpc,Mfoo/bar.proto=bar,import_prefix=foo/,import_p
 window 命令
  protoc.exe .\adt.proto -I . --go_out=plugins=grpc:./
 
+mac grpc 生成
+protoc -I . --go_out=plugins=grpc:. event.proto 
