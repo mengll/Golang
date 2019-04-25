@@ -180,3 +180,8 @@ base64的数据的长度必须是满足 4的倍数，如果不满足需要补上
 
 ```
 
+### 生成随机数的操作
+```	
+rd := rand.New(rand.NewSource(time.Now().Unix()))
+fmt.Println(rd.Intn(100))
+```	
