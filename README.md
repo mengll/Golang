@@ -185,3 +185,19 @@ base64的数据的长度必须是满足 4的倍数，如果不满足需要补上
 rd := rand.New(rand.NewSource(time.Now().Unix()))
 fmt.Println(rd.Intn(100))
 ```	
+### vscode 的go配置
+```
+"go.gopath":"${workspaceRoot}:/Users/Young/Desktop/go", // 当前工作空间${wordspaceRoot}加上系统 GOPATH 目录
+"go.goroot": "/usr/local/Cellar/go/1.12/libexec", // go 的安装目录
+"go.formatOnSave": true, //在保存代码时自动格式化代码
+"go.formatTool": "goimports", //使用 goimports 工具进行代码格式化，或者使用 goreturns 和 gofmt
+"go.buildOnSave": true, //在保存代码时自动编译代码
+"go.lintOnSave": true, //在保存代码时自动检查代码可以优化的地方，并给出建议
+"go.vetOnSave": false, //在保存代码时自动检查潜在的错误
+"go.coverOnSave": false, //在保存代码时执行测试，并显示测试覆盖率
+"go.useCodeSnippetsOnFunctionSuggest": true, //使用代码片段作为提示
+"go.gocodeAutoBuild": false //代码自动编译构建
+
+链接：https://juejin.im/post/5c7c8fdf518825763c6d9cb
+```
+
