@@ -85,6 +85,53 @@ func main() {
 	}
 }
 
+ select 会选择一个最先匹配到的数据执行， 循环的时候，有多个条件，其实是都会执行，就看谁先匹配到
+ 
+ package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	start := time.Now()
+	c := make(chan interface{})
+	go func() {
+		time.Sleep(time.Second * 5)
+		close(c)
+	}()
+	fmt.Println("Blocking on read...")
+
+	// 最终还是会执行
+	d := make(chan interface{})
+
+	go func() {
+		//time.Sleep(time.Second * 2)
+		d <- 2
+	}()
+
+	// 还是会执行删除的操作
+	e := make(chan interface{})
+	go func() {
+		//time.Sleep(time.Second * 2)
+		e <- 12
+	}()
+
+	for i := 0; i < 3; i++ {
+		select {
+		case cta, ok := <-c:
+			fmt.Println(cta, ok) // nil false
+			fmt.Printf("Unlock %v later.\n", time.Since(start))
+		case <-d:
+			fmt.Println("This is d func") // 随机的
+
+		case <-e:
+			fmt.Println("This is e Func") // 随机的看 调度器的调度
+		}
+	}
+
+}
 
 
 
