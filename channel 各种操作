@@ -73,3 +73,36 @@ func main() {
 //关闭管道使用的是close 关闭当前的通道
 
 // 通道关闭后返回的是false  通道额关闭，只是不能继续向通道写数据通道内数据，通道内的数据依然存在
+
+// 通到关闭之后，还是可以从通道中获取数据，只是获取的数据是 nil,通道关闭返回的是false
+
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	c1 := make(chan interface{})
+	close(c1)
+
+	c2 := make(chan interface{})
+	close(c2)
+
+	var c1Count, c2Count int
+	for i := 0; i < 1000; i++ {
+		select {
+		case k, v := <-c1:
+			fmt.Println(k, v)
+			c1Count++
+		case k, v := <-c2:
+			fmt.Println(k, v)
+			c2Count++
+		}
+	}
+	fmt.Printf("c1Count:%d c2Count:%d\n", c1Count, c2Count)
+}
+
+
+
+
