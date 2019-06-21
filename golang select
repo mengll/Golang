@@ -59,3 +59,32 @@ func main() {
 	fmt.Println()
 
 }
+
+
+### 通道在关闭的时候 也会触发 select
+
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	start := time.Now()
+	c := make(chan interface{})
+	go func() {
+		time.Sleep(time.Second * 5)
+		close(c)
+	}()
+	fmt.Println("Blocking on read...")
+	select {
+	case cta, ok := <-c:
+		fmt.Println(cta, ok) // nil false
+		fmt.Printf("Unlock %v later.\n", time.Since(start))
+	}
+}
+
+
+
+
