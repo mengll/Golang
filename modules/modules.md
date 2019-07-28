@@ -34,3 +34,4 @@ replace golang.org/x/image => github.com/golang/image latest
 
 go mod edit -replace=golang.org/x/mod=github.com/golang/mod@latest
 go mod edit -replace=gopkg.in/telegram-bot-api.v4=github.com/go-telegram-bot-api/telegram-bot-api@v4.6.4
+go mod edit -replace=gopkg.in/src-d/go-git-fixtures.v3@v3.5.0=github.com/src-d/go-git-fixtures@latest
