@@ -31,3 +31,5 @@ replace google.golang.org/appengine => github.com/golang/appengine latest
 replace golang.org/x/mobile => github.com/golang/mobile latest
 
 replace golang.org/x/image => github.com/golang/image latest
+
+c
