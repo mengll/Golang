@@ -201,3 +201,8 @@ fmt.Println(rd.Intn(100))
 链接：https://juejin.im/post/5c7c8fdf518825763c6d9cb
 ```
 
+
+
+### 配置访问的代理
+export GO111MODULE=on
+export GOPROXY=https://goproxy.io
