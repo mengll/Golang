@@ -205,4 +205,5 @@ fmt.Println(rd.Intn(100))
 
 ### 配置访问的代理
 export GO111MODULE=on
+
 export GOPROXY=https://goproxy.io
