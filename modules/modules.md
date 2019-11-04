@@ -62,11 +62,13 @@ replace golang.org/x/image => github.com/golang/image latest
 ### 移除文件依赖
   go mod edit -droprequire=golang.org/x/text
 
-###替换依赖
-go mod edit -replace golang.org/x/text=github.com/golang/text@latest
-go mod edit -replace=golang.org/x/mod=github.com/golang/mod@latest
-go mod edit -replace=gopkg.in/telegram-bot-api.v4=github.com/go-telegram-bot-api/telegram-bot-api@v4.6.4
-go mod edit -replace=gopkg.in/src-d/go-git-fixtures.v3@v3.5.0=github.com/src-d/go-git-fixtures@latest
+### 替换依赖
+.go mod edit -replace golang.org/x/text=github.com/golang/text@latest
+.go mod edit -replace=golang.org/x/mod=github.com/golang/mod@latest
+
+.go mod edit -replace=gopkg.in/telegram-bot-api.v4=github.com/go-telegram-bot-api/telegram-bot-api@v4.6.4
+
+.go mod edit -replace=gopkg.in/src-d/go-git-fixtures.v3@v3.5.0=github.com/src-d/go-git-fixtures@latest
 
 
 
