@@ -207,3 +207,11 @@ fmt.Println(rd.Intn(100))
 export GO111MODULE=on
 
 export GOPROXY=https://goproxy.io
+
+### 高质量文章
+ go调度 https://www.cnblogs.com/zkweb/category/1108329.html
+ 
+ https://studygolang.com/articles/11627
+ 
+ go内存  https://studygolang.com/articles/21033
+
