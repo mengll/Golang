@@ -235,4 +235,25 @@ func main(){
 }
 
 
+12） range 的操作
+
+type field struct {
+	name string
+}
+
+func (p *field) print() {
+	fmt.Printf("print: p: %p, v: %s\n", p, p.name)
+}
+func main() {
+	data := []field{{"one"}, {"two"}, {"three"}}
+	for _, v := range data {
+	// 注意:for语句中的迭代变量（如: v）在每次迭代时被重新使用, 一直复用
+	go v.print()
+	// 注意： 此处可理解为: go (&v).print(), 也就用是v的指针去调用， 而且v
+	会在每次迭代时复用，所以每一个调用的receiver都是共同指向v的指针， 而且v在最后
+	一次迭代后， 被 复制为:"three", 所以 才有了打印出3个"three"的结果.
+}
+//程序执行结果: three, three, three
+time.Sleep(6 * time.Second) //偷懒才用sleep方式同步， 工程中不要用哟！
+
 
