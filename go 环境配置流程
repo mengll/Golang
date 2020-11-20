@@ -28,3 +28,5 @@ SET GOARCH=amd64
 go build main.go
 
 --]
+
+人畜无害操作 go env -w GOGIN=11  某些系统对部分参数是无法通过这个命令操作的 如 go env -w GOOS=linux
