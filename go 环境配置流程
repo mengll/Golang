@@ -5,6 +5,12 @@
   
   export PATH=$PATH:$GOROOT
   
-  2)重新加载文件
-  
+2)重新加载文件
   source ~/.bashrc
+
+2】 window环境下的跨平台编译
+需要设置GOOS=linux GORACH=amd64 
+如果一般是通过set 设置如果
+2.1 go env 找到读取env的地方修改
+set GOENV=C:\Users\mengll\AppData\Roaming\go\env  
+2.2 直接修改环境变量的值
