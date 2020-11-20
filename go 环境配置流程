@@ -14,3 +14,17 @@
 2.1 go env 找到读取env的地方修改
 set GOENV=C:\Users\mengll\AppData\Roaming\go\env  
 2.2 直接修改环境变量的值
+
+
+GOOS：目标平台的操作系统（darwin、freebsd、linux、windows）
+GOARCH：目标平台的体系架构（386、amd64、arm）
+交叉编译不支持 CGO 所以要禁用它
+
+[--
+
+SET CGO_ENABLED=0
+SET GOOS=linux
+SET GOARCH=amd64
+go build main.go
+
+--]
