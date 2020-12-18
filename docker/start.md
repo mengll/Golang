@@ -40,8 +40,10 @@ sudo vi /var/lib/boot2docker/profile 配置文件
 
 ---------win10挂载宿主机的问题
 调整盘符 完美挂在
-C:\Users\T480S\work\Engine
-docker run -it -v /c/Users/T480S/work/Engine:/Engine -p 8000:8000 steveny/predictionio:0.12.0 /bin/bash
+d:\work\docker\datasource
+首先将当前的路径挂载到 虚拟机的共享文件夹中  virtualbox 中的共享文件夹中,在其中的名声为 datasource
+
+docker run -it -v /datasource:/Engine -p 8000:8000 steveny/predictionio:0.12.0 /bin/bash
 
 
 
