@@ -28,3 +28,12 @@ docker start
 docker run -it --name mygo --volumes-from=web_c -e GOPATH=/data/golang -e GOBIN=/data/golang/bin golang /bin/bash
 
 ```
+
+--------- win1o docker toolbox 下的操作-------
+docker-machine.exe default ssh  进入命令修改的地方
+
+sudo /etc/init.d/docker restart 重启
+
+sudo vi /var/lib/boot2docker/profile 配置文件
+
+-------- 修改数据源-----------------
