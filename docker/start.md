@@ -30,7 +30,7 @@ docker run -it --name mygo --volumes-from=web_c -e GOPATH=/data/golang -e GOBIN=
 ```
 
 --------- win1o docker toolbox 下的操作-------
-docker-machine.exe default ssh  进入命令修改的地方
+docker-machine.exe  ssh default  进入命令修改的地方
 
 sudo /etc/init.d/docker restart 重启
 
