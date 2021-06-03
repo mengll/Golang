@@ -4,6 +4,7 @@
  mysql ifnull(user_data.dnpu,0) 当前的字段
 
 数据库字段为null的处理
+```
 	switch c.ScanType().Name() {
 		case "string":
 			scanArgs[i] = &sql.NullString{String: "", Valid: true}
@@ -21,3 +22,4 @@
 		default:
 			scanArgs[i] = reflect.New(c.ScanType()).Interface()
 		}
+```
