@@ -16,7 +16,7 @@
 			scanArgs[i] = &sql.NullFloat64{Valid: false}
 		case "bool":
 			scanArgs[i] = &sql.NullBool{Valid: false}
-		case "datetime":
+		case "Time":
 			scanArgs[i] = &sql.NullTime{Valid: false}
 
 		default:
