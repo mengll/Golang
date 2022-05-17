@@ -226,4 +226,28 @@ slice 详解 https://www.cppentry.com/bencandy.php?fid=78&aid=216871&page=1
 优秀资源汇总
 https://shockerli.net/post/go-awesome/
 
+### dlv 的安装
+```
+-- 1.16 以下的安装方式
+$ git clone https://github.com/go-delve/delve
+$ cd delve
+$ go install github.com/go-delve/delve/cmd/dlv
+
+--- 1.16 或更高的版本
+# Install the latest release:
+$ go install github.com/go-delve/delve/cmd/dlv@latest
+
+# Install at tree head:
+$ go install github.com/go-delve/delve/cmd/dlv@master
+
+# Install at a specific version or pseudo-version:
+$ go install github.com/go-delve/delve/cmd/dlv@v1.7.3
+$ go install github.com/go-delve/delve/cmd/dlv@v1.7.4-0.20211208103735-2f13672765fe
+
+```
+
+
+
+
+
 
